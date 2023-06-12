@@ -1,0 +1,23 @@
+name: shop-api
+channels:
+        - conda-forge
+dependencies:
+        - flask-restx
+        - flask
+        - flask_cors
+        - gevent
+        - gunicorn
+        - marshmallow
+        - pip
+        - psycopg2-binary<2.10
+        - requests
+        - sqlalchemy<2.0.4
+        - pytest
+        - python=3.9
+        - werkzeug=2.1.2
+        - pip:
+                - config-probe
+                - pytest-cov
+                - tox-conda
+                - ShopifyAPI
+                - git+https://github.com/korbit-ai/python-config-probe.git
