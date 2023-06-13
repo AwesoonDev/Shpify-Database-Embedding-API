@@ -1,7 +1,7 @@
 
 
 from awesoon.core.db_client import DatabaseApiClient
-from awesoon.core.shopify.policy import ShopifyQuey
+from awesoon.core.shopify.policy import ShopifyQuery
 
 
 db = DatabaseApiClient()
@@ -14,7 +14,15 @@ TEMPLATE = "The following is a friendly conversation between a customer " \
 
 def get_shop_policies(shop_id):
     shop = db.get_shop(shop_id)
-    return ShopifyQuey.get_shop_policies(shop["shop_url"], shop["access_token"])
+    return ShopifyQuery.get_shop_policies(shop["shop_url"], shop["access_token"])
+
+def get_shop_products(shop_id):
+    shop = db.get_shop(shop_id)
+    return ShopifyQuery.get_shop_products(shop["shop_url"], shop["access_token"])
+
+def get_shop_categories(shop_id):
+    shop = db.get_shop(shop_id)
+    return ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
 
 
 def generate_shop_prompt_by_policies(policies):
