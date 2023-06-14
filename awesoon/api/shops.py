@@ -58,8 +58,3 @@ class ShopGetCategories(Resource):
         }
         return result
 
-# @ns.route("/<id>/compute")
-# class ShopCompute(Resource):
-#     def post(self, id):
-
-#         return(200)

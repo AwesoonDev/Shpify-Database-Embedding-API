@@ -1,5 +1,8 @@
 *ngrok*
 *pyc*
 
+# environment variables
+.env
+
 # vs code settings
 .vscode/

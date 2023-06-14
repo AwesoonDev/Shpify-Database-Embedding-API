@@ -19,3 +19,6 @@ class DatabaseApiClient:
 
     def get_shop(self, shop_id):
         return self._make_request(requests.get, f"shops/{shop_id}")
+    
+    def send_docs(self, shop_id, docs):
+        return self._make_request(requests.post, f"shops/{shop_id}/docs", data = docs)
