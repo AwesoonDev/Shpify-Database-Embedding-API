@@ -1,5 +1,5 @@
 from flask import request
-from awesoon.core.shop import generate_shop_prompt_by_policies, get_shop_policies, get_shop_categories, get_shop_products
+from awesoon.core.shop import generate_shop_prompt_by_policies, get_shop_policies, get_shop_categories, get_shop_products, shop_compute
 from flask_restx import Namespace, Resource, marshal
 
 from awesoon.api.model.shops import prompt_model
@@ -14,6 +14,12 @@ prompt_model = ns.model(
     prompt_model
 )
 
+
+@ns.route("/<id>/compute")
+class ShopCompute(Resource):
+    def post(self, id):
+        data = shop_compute(id)
+        return data
 
 @ns.route("/<id>/prompt-generate")
 class ShopPromptGenerate(Resource):

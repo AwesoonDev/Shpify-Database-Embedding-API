@@ -24,9 +24,12 @@ def get_shop_categories(shop_id):
     shop = db.get_shop(shop_id)
     return ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
 
-
 def generate_shop_prompt_by_policies(policies):
     prompt = f"{TEMPLATE}\n\n"
     for i, policy in enumerate(policies, start=1):
         prompt = prompt + f"Policy {i}: {policy}"
     return prompt
+
+def shop_compute(shop_id):
+    shop = db.get_shop(shop_id)
+    return ShopifyQuery.shop_compute(shop["shop_url"], shop["access_token"])
