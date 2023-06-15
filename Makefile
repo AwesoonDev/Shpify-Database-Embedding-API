@@ -17,7 +17,7 @@ help: # Display help
 run: ## Start the service locally
 	cd $(TOPDIR) && \
 	FLASK_APP=awesoon.app.py \
-	flask run --no-debugger --no-reload -p $(PORT)
+	flask run --host=0.0.0.0 --no-debugger --no-reload -p $(PORT)
 
 build-docker: ## Build the docker image
 	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml build
