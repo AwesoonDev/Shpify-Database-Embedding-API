@@ -2,6 +2,7 @@
 
 import requests
 from awesoon.config import config
+from awesoon.core.models.doc import doc
 
 
 class DatabaseApiClient:
@@ -20,5 +21,5 @@ class DatabaseApiClient:
     def get_shop(self, shop_id):
         return self._make_request(requests.get, f"shops/{shop_id}")
     
-    def send_docs(self, shop_id, docs):
-        return self._make_request(requests.post, f"shops/{shop_id}/docs", data = docs)
+    def add_doc(self, shop_id, doc: doc):
+        return self._make_request(requests.post, f"shops/{shop_id}/docs", data = doc)
