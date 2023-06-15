@@ -51,7 +51,7 @@ def generate_document(shop_id):
 # Returns:
 #   List of chunked texts
 def split_document(document):
-    text_splitter = TokenTextSplitter(chunk_size=2000, chunk_overlap=400)
+    text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
     documents = text_splitter.split_text(document)
     return(documents)
 
