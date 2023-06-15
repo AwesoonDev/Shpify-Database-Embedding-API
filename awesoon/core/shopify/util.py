@@ -1,4 +1,5 @@
 import html
+import re
 from io import StringIO
 from html.parser import HTMLParser
 
@@ -27,4 +28,5 @@ def strip_tags(html):
         return ""
     s = MLStripper()
     s.feed(html)
-    return s.get_data()
+    s.close()
+    return re.sub('\n', '', s.get_data())

@@ -1,9 +1,12 @@
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core.shopify.policy import ShopifyQuery
 from json import dumps
+import re
 from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import TokenTextSplitter
 from uuid import uuid4
 from flask_restx import Namespace, fields, marshal
+from requests.exceptions import HTTPError
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -44,41 +47,44 @@ def generate_shop_prompt_by_policies(policies):
         prompt = prompt + f"Policy {i}: {policy}"
     return prompt
 
-def generate_document(shop_id):
+def generate_documents(shop_id):
     shop = db.get_shop(shop_id)
     policies = ShopifyQuery.get_shop_policies(shop["shop_url"], shop["access_token"])
     products = ShopifyQuery.get_shop_products(shop["shop_url"], shop["access_token"])
     categories = ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
-    document = dumps({
+    document_str = re.sub(r"[{}']", "", str({
         "policies": policies,
         "products": products,
         "categories": categories 
-    })
-    return(document)
+    }))
+
+    text_splitter = TokenTextSplitter(chunk_size=2000, chunk_overlap=400)
+    documents = text_splitter.split_text(document_str)
+    return(documents)
 
 # Generate a single document embedding
 # Args:
-#   document: string. Single text to embed.
+#   document: list of chunked texts
 # Returns:
-#   Single embedding
-def generate_document_embedding(document: str):
+#   Embedding of chunked texts
+def generate_document_embedding(documents):
     # Initialize.
     openai = OpenAIEmbeddings()
-    # Embed. Argument is a list of texts, so we wrap document as a list with 1 element
-    embeddings = openai.embed_documents([document])
-    # Extract. We provided 1 text and we pull the only embedding
-    embedding = embeddings[0]
-    return embedding
+    # Embed. Argument is a list of texts
+    embeddings = openai.embed_documents(documents)
+    return embeddings
 
 def shop_compute(shop_id):
-    document = generate_document(shop_id) 
-    embedding = generate_document_embedding(document)
-    doc_version = uuid4()
+    documents = generate_documents(shop_id) 
+    embedding = generate_document_embedding(documents)
 
-    data = {
-        "document": document,
-        "embedding": embedding,
-        "docs_version": doc_version
-    }
+    data = [{"document": documents[i], "embedding": embedding[i], "docs_version": uuid4().hex} for i in range(len(documents))]
+    responses = []
+    for i in range(len(documents)):
+        try:
+            response = db.send_docs(shop_id, marshal(data[i], doc_model))
+            responses.append(response)
+        except HTTPError as ex:
+            responses.append(ex)
 
-    return db.send_docs(shop_id, marshal(data, doc_model))
+    return responses
