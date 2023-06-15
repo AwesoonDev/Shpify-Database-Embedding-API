@@ -9,7 +9,6 @@ dependencies:
         - gunicorn
         - marshmallow
         - pip
-        - psycopg2-binary<2.10
         - requests
         - sqlalchemy<2.0.4
         - pytest
