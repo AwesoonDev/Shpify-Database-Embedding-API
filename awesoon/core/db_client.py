@@ -3,6 +3,7 @@
 import requests
 from awesoon.config import config
 from awesoon.core.models.doc import doc
+from copy import copy
 
 
 class DatabaseApiClient:
@@ -22,4 +23,5 @@ class DatabaseApiClient:
         return self._make_request(requests.get, f"shops/{shop_id}")
     
     def add_doc(self, shop_id, doc: doc):
-        return self._make_request(requests.post, f"shops/{shop_id}/docs", data = doc)
+        doc_data = copy(doc.__dict__)
+        return self._make_request(requests.post, f"shops/{shop_id}/docs", json=doc_data)

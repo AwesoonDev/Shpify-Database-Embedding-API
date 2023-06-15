@@ -16,6 +16,7 @@ dependencies:
         - python=3.9
         - werkzeug=2.1.2
         - pip:
+                - openai
                 - config-probe
                 - pytest-cov
                 - tox-conda
