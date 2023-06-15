@@ -15,6 +15,9 @@ dependencies:
         - pytest
         - python=3.9
         - werkzeug=2.1.2
+        - langchain
+        - tiktoken
+        - python-dotenv
         - pip:
                 - config-probe
                 - pytest-cov
