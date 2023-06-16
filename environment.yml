@@ -10,15 +10,14 @@ dependencies:
         - marshmallow
         - pip
         - requests
-        - sqlalchemy<2.0.4
         - pytest
         - python=3.9
         - werkzeug=2.1.2
         - langchain
+        - openai
         - tiktoken
         - python-dotenv
         - pip:
-                - openai
                 - config-probe
                 - pytest-cov
                 - tox-conda
