@@ -14,6 +14,7 @@ def decode_html_policies(policies):
 
 class MLStripper(HTMLParser):
     def __init__(self):
+        """A markup language tag stripper class constructed from an html parser"""
         super().__init__()
         self.reset()
         self.strict = False
