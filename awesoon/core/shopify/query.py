@@ -4,6 +4,16 @@ import shopify
 from awesoon.core.shopify.util import decode_html_policies, strip_tags
 api_version = '2023-01'
 
+SHP_FIELDS = [
+    'id', 'title', 'product_type', 'body_html', 'variants',
+    'options', 'published_at', 'handle', 'status', 'tags', 'vendor'
+]
+
+VARIANT_FIELDS = [
+    'compare_at_price', 'fulfillment_service', 'grams', 'inventory_policy',
+    'inventoryLevel', 'inventory_quantity', 'option', 'price', 'taxable'
+]
+
 
 class ShopifyQuery:
     @classmethod
@@ -20,7 +30,7 @@ class ShopifyQuery:
                     }
                 }"""
             )
-        
+
         policies_object = json.loads(data)
         policies_trimmed = policies_object["data"].get("shop", {}).get("shopPolicies")
         policies_decoded = decode_html_policies(policies_trimmed)
@@ -29,10 +39,8 @@ class ShopifyQuery:
     @classmethod
     def get_shop_products(cls, shop_url, token):
         data = []
-        fields = ['id', 'title', 'product_type', 'body_html', 'variants', 'options', 'published_at', 'handle', 'status', 'tags', 'vendor']
-        variants_fields = ['compare_at_price', 'fulfillment_service', 'grams', 'inventory_policy', 'inventoryLevel', 'inventory_quantity', 'option', 'price', 'taxable']
         with shopify.Session.temp(shop_url, api_version, token):
-            product_pages = shopify.Product.find(fields = fields)
+            product_pages = shopify.Product.find(fields=SHP_FIELDS)
             while True:
                 curr_page_data = [product_page.__dict__['attributes'] for product_page in product_pages]
                 data.extend(curr_page_data)
@@ -46,13 +54,13 @@ class ShopifyQuery:
             variants = product.pop('variants', None)
             if variants:
                 variants = [variant.__dict__['attributes'] for variant in variants]
-                product['variants'] = [{key: variant.pop(key, None) for key in variants_fields} for variant in variants]
+                product['variants'] = [{key: variant.pop(key, None) for key in VARIANT_FIELDS} for variant in variants]
 
             options = product.pop('options', None)
             if options:
                 product['options'] = [option.__dict__['attributes'] for option in options]
 
-        return(data)
+        return data
 
     @classmethod
     def get_shop_categories(cls, shop_url, token):
@@ -74,6 +82,7 @@ class ShopifyQuery:
 
         categories_object = json.loads(data)
         categories_trimmed = categories_object["data"].get("shop", {}).get("allProductCategories")
-        categories = [node.pop('productTaxonomyNode').pop('fullName', None) for node in categories_trimmed ]
+        categories = [
+            node.pop('productTaxonomyNode').pop('fullName', None) for node in categories_trimmed
+        ]
         return categories
-
