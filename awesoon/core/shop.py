@@ -85,8 +85,8 @@ def shop_compute(shop_id, args):
     """
     app_name = args["app"]
     document = generate_document(shop_id, app_name=app_name)
-    documents = split_document(document, app_name=app_name)
-    embedding = generate_document_embedding(documents, app_name=app_name)
+    documents = split_document(document)
+    embedding = generate_document_embedding(documents)
     scan_version_id = uuid4().hex
     data = [doc(
         document=documents[i], embedding=embedding[i], docs_version=scan_version_id) for i in range(len(documents))

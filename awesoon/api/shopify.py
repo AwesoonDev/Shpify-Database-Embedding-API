@@ -2,7 +2,6 @@
 from awesoon.core.shop import get_shop_categories, get_shop_policies, get_shop_products, shop_compute
 from flask_restx import Namespace, Resource
 
-from awesoon.api.model.shops import prompt_model
 
 ns = Namespace(
     "shopify-query", "This namespace is resposible for shop related data generation")
