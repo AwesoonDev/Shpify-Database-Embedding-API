@@ -12,22 +12,22 @@ load_dotenv()
 db = DatabaseApiClient()
 
 
-def get_shop_policies(shop_id):
-    shop = db.get_shop(shop_id)
+def get_shop_policies(shop_id, app_name):
+    shop = db.get_shop_installation(shop_id, app_name=app_name)
     return ShopifyQuery.get_shop_policies(shop["shop_url"], shop["access_token"])
 
 
-def get_shop_products(shop_id):
-    shop = db.get_shop(shop_id)
+def get_shop_products(shop_id, app_name):
+    shop = db.get_shop_installation(shop_id, app_name=app_name)
     return ShopifyQuery.get_shop_products(shop["shop_url"], shop["access_token"])
 
 
-def get_shop_categories(shop_id):
-    shop = db.get_shop(shop_id)
+def get_shop_categories(shop_id, app_name):
+    shop = db.get_shop_installation(shop_id, app_name=app_name)
     return ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
 
 
-def generate_document(shop_id):
+def generate_document(shop_id, app_name):
     """
     Retrieve and concatenate shop information
     Args:
@@ -35,7 +35,7 @@ def generate_document(shop_id):
     Return:
         A string stripped of extraneous characters that is ready to be split
     """
-    shop = db.get_shop(shop_id)
+    shop = db.get_shop_installation(shop_id, app_name=app_name)
     policies = ShopifyQuery.get_shop_policies(shop["shop_url"], shop["access_token"])
     products = ShopifyQuery.get_shop_products(shop["shop_url"], shop["access_token"])
     categories = ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
@@ -74,17 +74,19 @@ def generate_document_embedding(documents):
     return embeddings
 
 
-def shop_compute(shop_id):
+def shop_compute(shop_id, args):
     """
     Send shop information to the database
     Args:
         shop_id: unique shop indentifier to retrieve information from
+        args: includes the filter params (app_name)
     Return:
         Returns success message
     """
-    document = generate_document(shop_id)
-    documents = split_document(document)
-    embedding = generate_document_embedding(documents)
+    app_name = args["app"]
+    document = generate_document(shop_id, app_name=app_name)
+    documents = split_document(document, app_name=app_name)
+    embedding = generate_document_embedding(documents, app_name=app_name)
     scan_version_id = uuid4().hex
     data = [doc(
         document=documents[i], embedding=embedding[i], docs_version=scan_version_id) for i in range(len(documents))

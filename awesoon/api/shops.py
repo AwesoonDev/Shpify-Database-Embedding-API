@@ -9,41 +9,16 @@ import json
 ns = Namespace(
     "shops", "This namespace is resposible for shop related data generation")
 
-prompt_model = ns.model(
-    "model",
-    prompt_model
-)
+
+compute_parser = ns.parser()
+compute_parser.add_argument("app", type=str, default=None, location="values")
+
 
 @ns.route("/<id>/compute")
 class ShopCompute(Resource):
+    @ns.expect(compute_parser)
     def post(self, id):
-        data = shop_compute(id)
+        args = compute_parser.parse_args()
+        data = shop_compute(id, args)
         return data
-
-# @ns.route("/<id>/get-policies")
-# class ShopGetPolicies(Resource):
-#     def post(self, id):
-#         policies = get_shop_policies(id)
-#         result = {
-#             "policies": policies
-#         }
-#         return result
-    
-# @ns.route("/<id>/get-products")
-# class ShopGetProducts(Resource):
-#     def post(self, id):
-#         products = get_shop_products(id)
-#         result = {
-#             "products": products
-#         }
-#         return result
-    
-# @ns.route("/<id>/get-categories")
-# class ShopGetCategories(Resource):
-#     def post(self, id):
-#         categories = get_shop_categories(id)
-#         result = {
-#             "categories": categories
-#         }
-#         return result
 

@@ -7,16 +7,17 @@ from awesoon.api.model.shops import prompt_model
 ns = Namespace(
     "shopify-query", "This namespace is resposible for shop related data generation")
 
-prompt_model = ns.model(
-    "model",
-    prompt_model
-)
+
+shopify_parser = ns.parser()
+shopify_parser.add_argument("app", type=str, default=None, location="values")
 
 
 @ns.route("/<id>/policies")
 class ShopGetPolicies(Resource):
+    @ns.expect(shopify_parser)
     def get(self, id):
-        policies = get_shop_policies(id)
+        args = shopify_parser.parse_args()
+        policies = get_shop_policies(id, args["app"])
         result = {
             "policies": policies
         }
@@ -25,8 +26,10 @@ class ShopGetPolicies(Resource):
 
 @ns.route("/<id>/products")
 class ShopGetProducts(Resource):
+    @ns.expect(shopify_parser)
     def get(self, id):
-        products = get_shop_products(id)
+        args = shopify_parser.parse_args()
+        products = get_shop_products(id, args["app"])
         result = {
             "products": products
         }
@@ -35,10 +38,11 @@ class ShopGetProducts(Resource):
 
 @ns.route("/<id>/categories")
 class ShopGetCategories(Resource):
+    @ns.expect(shopify_parser)
     def get(self, id):
-        categories = get_shop_categories(id)
+        args = shopify_parser.parse_args()
+        categories = get_shop_categories(id, args["app"])
         result = {
             "categories": categories
         }
         return result
-
