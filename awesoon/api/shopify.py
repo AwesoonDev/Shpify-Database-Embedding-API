@@ -8,7 +8,7 @@ ns = Namespace(
 
 
 shopify_parser = ns.parser()
-shopify_parser.add_argument("app", type=str, default=None, location="values")
+shopify_parser.add_argument("app_name", type=str, default=None, location="values")
 
 
 @ns.route("/<id>/policies")
@@ -16,7 +16,7 @@ class ShopGetPolicies(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        policies = get_shop_policies(id, args["app"])
+        policies = get_shop_policies(id, args["app_name"])
         result = {
             "policies": policies
         }
@@ -28,7 +28,7 @@ class ShopGetProducts(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        products = get_shop_products(id, args["app"])
+        products = get_shop_products(id, args["app_name"])
         result = {
             "products": products
         }
@@ -40,7 +40,7 @@ class ShopGetCategories(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        categories = get_shop_categories(id, args["app"])
+        categories = get_shop_categories(id, args["app_name"])
         result = {
             "categories": categories
         }

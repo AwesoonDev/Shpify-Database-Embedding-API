@@ -28,7 +28,7 @@ class DatabaseApiClient:
         return self._make_request(requests.post, f"shops/{shop_id}/docs", json=doc_data)
 
     def get_shop_installation(self, shop_id, app_name):
-        installations = self._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"name": app_name})
+        installations = self._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"app_name": app_name})
         if installations:
             return installations[0]
         else:

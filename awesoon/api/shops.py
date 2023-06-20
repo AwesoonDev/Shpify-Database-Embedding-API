@@ -9,7 +9,7 @@ ns = Namespace(
 
 
 compute_parser = ns.parser()
-compute_parser.add_argument("app", type=str, default=None, location="values")
+compute_parser.add_argument("app_name", type=str, default=None, location="values")
 
 
 @ns.route("/<id>/compute")

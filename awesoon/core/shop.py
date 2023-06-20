@@ -83,7 +83,7 @@ def shop_compute(shop_id, args):
     Return:
         Returns success message
     """
-    app_name = args["app"]
+    app_name = args["app_name"]
     document = generate_document(shop_id, app_name=app_name)
     documents = split_document(document)
     embedding = generate_document_embedding(documents)
