@@ -1,49 +1,24 @@
 from flask import request
+from awesoon.core.exceptions import ShopInstallationNotFoundError
 from awesoon.core.shop import shop_compute
 from flask_restx import Namespace, Resource, marshal
 
-from awesoon.api.model.shops import prompt_model
-from awesoon.core.exceptions import ShopNotFoundError
-import json
 
 ns = Namespace(
     "shops", "This namespace is resposible for shop related data generation")
 
-prompt_model = ns.model(
-    "model",
-    prompt_model
-)
+
+compute_parser = ns.parser()
+compute_parser.add_argument("app_name", type=str, default=None, location="values")
+
 
 @ns.route("/<id>/compute")
 class ShopCompute(Resource):
+    @ns.expect(compute_parser)
     def post(self, id):
-        data = shop_compute(id)
-        return data
-
-# @ns.route("/<id>/get-policies")
-# class ShopGetPolicies(Resource):
-#     def post(self, id):
-#         policies = get_shop_policies(id)
-#         result = {
-#             "policies": policies
-#         }
-#         return result
-    
-# @ns.route("/<id>/get-products")
-# class ShopGetProducts(Resource):
-#     def post(self, id):
-#         products = get_shop_products(id)
-#         result = {
-#             "products": products
-#         }
-#         return result
-    
-# @ns.route("/<id>/get-categories")
-# class ShopGetCategories(Resource):
-#     def post(self, id):
-#         categories = get_shop_categories(id)
-#         result = {
-#             "categories": categories
-#         }
-#         return result
-
+        try:
+            args = compute_parser.parse_args()
+            data = shop_compute(id, args)
+            return data
+        except ShopInstallationNotFoundError:
+            ns.abort(400, "Shop Installation Not Found")

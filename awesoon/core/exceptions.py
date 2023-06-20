@@ -1,3 +1,3 @@
 
-class ShopNotFoundError(Exception):
+class ShopInstallationNotFoundError(Exception):
     pass
