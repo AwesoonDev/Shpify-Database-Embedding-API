@@ -48,25 +48,25 @@ class ShopifyQuery(Query):
 
     @classmethod
     def get_shop_products(cls, shop_url, token) -> List[Product]:
-        products = []
+        data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             product_pages = shopify.Product.find()
             while True:
                 curr_page_data = [product_page.to_dict() for product_page in product_pages]
-                products.extend(curr_page_data)
+                data.extend(curr_page_data)
                 if not product_pages.has_next_page():
                     break
                 product_pages = product_pages.next_page()
-        new_products = []
-        for product in products:
+        products = []
+        for product in data:
             product = {field: product[field] for field in SHP_FIELDS}
             product["body_html"] = strip_tags(product.pop("body_html", None))
             product["url"] = ".myshopify.com/" + product.pop("handle", None)
             variants = product.get("variants")
             if variants:
                 product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
-            new_products.append(product)
-        return _serialize_docs(new_products, Product)
+            products.append(product)
+        return _serialize_docs(products, Product)
 
     @classmethod
     def get_shop_categories(cls, shop_url, token) -> List[Category]:
