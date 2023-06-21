@@ -37,7 +37,7 @@ class CategoryEmbedding(ShopifyEmbedding):
     def get_documents(self):
         docs = []
         for category in self.objects:
-            docs.append(f"Here is a category of products that this store sells {category.raw()}")
+            docs.append(f"Here is a category of products that this store sells: {category.raw()}")
         return docs
 
 
