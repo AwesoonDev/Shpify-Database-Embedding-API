@@ -66,7 +66,7 @@ class ShopifyQuery(Query):
             if variants:
                 product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
                 for variant in product["variants"]:
-                    variant["url"] = product.get("url") + "?variant=" + variant.get("id")
+                    variant["url"] = product.get("url") + "?variant=" + str(variant.get("id"))
             products.append(product)
         return _serialize_docs(products, Product)
 
