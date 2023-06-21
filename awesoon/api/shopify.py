@@ -19,7 +19,7 @@ class ShopGetPolicies(Resource):
         args = shopify_parser.parse_args()
         policies = get_shop_policies(id, args["app_name"])
         result = {
-            "policies": policies
+            "policies": [policy.raw() for policy in policies]
         }
         return result
 
@@ -31,7 +31,7 @@ class ShopGetProducts(Resource):
         args = shopify_parser.parse_args()
         products = get_shop_products(id, args["app_name"])
         result = {
-            "products": products
+            "products": [product.raw() for product in products]
         }
         return result
 
@@ -43,7 +43,7 @@ class ShopGetCategories(Resource):
         args = shopify_parser.parse_args()
         categories = get_shop_categories(id, args["app_name"])
         result = {
-            "categories": categories
+            "categories": [category.raw() for category in categories]
         }
         return result
 
@@ -55,6 +55,6 @@ class ShopOrders(Resource):
         args = shopify_parser.parse_args()
         orders = get_shop_orders(id, args["app_name"])
         result = {
-            "orders": orders
+            "orders": [order.raw() for order in orders]
         }
         return result
