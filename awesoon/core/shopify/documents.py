@@ -20,9 +20,7 @@ class Policy(ShopifyObject):
 
 
 class Product(ShopifyObject):
-
-    def raw(self):
-        return json.dumps(self._raw)
+    pass
 
 
 class Category(ShopifyObject):
