@@ -1,5 +1,3 @@
-
-
 import requests
 from awesoon.config import config
 from awesoon.core.exceptions import ShopInstallationNotFoundError

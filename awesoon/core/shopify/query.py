@@ -1,8 +1,9 @@
 import json
+import requests
 import shopify
 
 from awesoon.core.shopify.util import decode_html_policies, strip_tags
-api_version = '2023-01'
+API_VERSION = '2023-01'
 
 SHP_FIELDS = [
     'id', 'title', 'product_type', 'body_html', 'variants',
@@ -15,23 +16,26 @@ VARIANT_FIELDS = [
 ]
 
 
+def _make_gql_request(shop_url, token, query):
+    data = None
+    with shopify.Session.temp(shop_url, API_VERSION, token):
+        data = shopify.GraphQL().execute(query)
+    return json.loads(data)
+
+
 class ShopifyQuery:
     @classmethod
     def get_shop_policies(cls, shop_url, token):
-        data = None
-        with shopify.Session.temp(shop_url, api_version, token):
-            data = shopify.GraphQL().execute(
-                """{
-                    shop {
-                        shopPolicies {
-                            body
-                            id
-                        }
-                    }
-                }"""
-            )
-
-        policies_object = json.loads(data)
+        query = """
+        {
+            shop {
+                shopPolicies {
+                    body
+                    id
+                }
+            }
+        }"""
+        policies_object = _make_gql_request(shop_url, token, query)
         policies_trimmed = policies_object["data"].get("shop", {}).get("shopPolicies")
         policies_decoded = decode_html_policies(policies_trimmed)
         return policies_decoded
@@ -39,7 +43,7 @@ class ShopifyQuery:
     @classmethod
     def get_shop_products(cls, shop_url, token):
         data = []
-        with shopify.Session.temp(shop_url, api_version, token):
+        with shopify.Session.temp(shop_url, API_VERSION, token):
             product_pages = shopify.Product.find(fields=SHP_FIELDS)
             while True:
                 curr_page_data = [product_page.__dict__['attributes'] for product_page in product_pages]
@@ -64,25 +68,35 @@ class ShopifyQuery:
 
     @classmethod
     def get_shop_categories(cls, shop_url, token):
-        data = None
-        with shopify.Session.temp(shop_url, api_version, token):
-            data = shopify.GraphQL().execute(
-                """{
-                    shop {
-                        allProductCategories {
-                            productTaxonomyNode {
-                                fullName
-                                name
-                                id
-                            }
-                        }
+        query = """
+        {
+            shop {
+                allProductCategories {
+                    productTaxonomyNode {
+                        fullName
+                        name
+                        id
                     }
-                }"""
-            )
+                }
+            }
+        }"""
 
-        categories_object = json.loads(data)
+        categories_object = _make_gql_request(shop_url, token, query)
         categories_trimmed = categories_object["data"].get("shop", {}).get("allProductCategories")
         categories = [
             node.pop('productTaxonomyNode').pop('fullName', None) for node in categories_trimmed
         ]
         return categories
+
+    @classmethod
+    def get_shop_orders(cls, shop_url, token):
+        data = []
+        with shopify.Session.temp(shop_url, API_VERSION, token):
+            orders = shopify.Order.find()
+            while True:
+                orders_data = [order.to_dict() for order in orders]
+                data.extend(orders_data)
+                if not orders.has_next_page():
+                    break
+                orders = orders.next_page()
+        return data
