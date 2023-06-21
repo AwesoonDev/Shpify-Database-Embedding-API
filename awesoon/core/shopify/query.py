@@ -48,28 +48,24 @@ class ShopifyQuery(Query):
 
     @classmethod
     def get_shop_products(cls, shop_url, token) -> List[Product]:
-        products = []
+        data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
-            product_pages = shopify.Product.find(fields=SHP_FIELDS)
+            product_pages = shopify.Product.find()
             while True:
-                curr_page_data = [product_page.__dict__["attributes"] for product_page in product_pages]
-                products.extend(curr_page_data)
+                curr_page_data = [product_page.to_dict() for product_page in product_pages]
+                data.extend(curr_page_data)
                 if not product_pages.has_next_page():
                     break
                 product_pages = product_pages.next_page()
-
-        for product in products:
+        products = []
+        for product in data:
+            product = {field: product[field] for field in SHP_FIELDS}
             product["body_html"] = strip_tags(product.pop("body_html", None))
-            # product["url"] = ".myshopify.com/" + product.pop("handle", None)
-            variants = product.pop("variants", None)
+            product["url"] = ".myshopify.com/" + product.pop("handle", None)
+            variants = product.get("variants")
             if variants:
-                variants = [variant.__dict__["attributes"] for variant in variants]
-                product["variants"] = [{key: variant.pop(key, None) for key in VARIANT_FIELDS} for variant in variants]
-
-            options = product.pop("options", None)
-            if options:
-                product["options"] = [option.__dict__["attributes"] for option in options]
-
+                product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
+            products.append(product)
         return _serialize_docs(products, Product)
 
     @classmethod

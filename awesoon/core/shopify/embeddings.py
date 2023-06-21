@@ -1,6 +1,7 @@
 
 
 from abc import ABC
+import json
 from typing import List
 from langchain.embeddings import OpenAIEmbeddings
 from awesoon.core.models.doc import doc
@@ -29,7 +30,7 @@ class ShopifyEmbedding(ABC):
 class ProductEmbedding(ShopifyEmbedding):
 
     def get_documents(self):
-        return [object.raw() for object in self.objects]
+        return [json.dumps(object.raw()) for object in self.objects]
 
 
 class CategoryEmbedding(ShopifyEmbedding):
