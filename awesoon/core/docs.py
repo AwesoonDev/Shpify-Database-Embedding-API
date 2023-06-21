@@ -2,7 +2,7 @@
 import re
 from uuid import uuid4
 from awesoon.core.db_client import DatabaseApiClient
-from awesoon.core.shopify.query import ShopifyQuery
+from awesoon.core import queries
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import TokenTextSplitter
 from awesoon.core.models.doc import doc
@@ -19,9 +19,9 @@ def generate_document(shop_id, app_name):
         A string stripped of extraneous characters that is ready to be split
     """
     shop = db.get_shop_installation(shop_id, app_name=app_name)
-    policies = ShopifyQuery.get_shop_policies(shop["shop_url"], shop["access_token"])
-    products = ShopifyQuery.get_shop_products(shop["shop_url"], shop["access_token"])
-    categories = ShopifyQuery.get_shop_categories(shop["shop_url"], shop["access_token"])
+    policies = queries["shopify"].get_shop_policies(shop["shop_url"], shop["access_token"])
+    products = queries["shopify"].get_shop_products(shop["shop_url"], shop["access_token"])
+    categories = queries["shopify"].get_shop_categories(shop["shop_url"], shop["access_token"])
     document = re.sub(r"[{}']", "", str({
         "policies": policies,
         "products": products,
