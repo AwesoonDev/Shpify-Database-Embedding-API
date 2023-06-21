@@ -61,7 +61,7 @@ class ShopifyQuery(Query):
         for product in data:
             product = {field: product[field] for field in SHP_FIELDS}
             product["body_html"] = strip_tags(product.pop("body_html", None))
-            product["url"] = ".myshopify.com/" + product.pop("handle", None)
+            product["url"] = shop_url + "/products/" + product.pop("handle", None)
             variants = product.get("variants")
             if variants:
                 product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
