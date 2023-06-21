@@ -1,6 +1,7 @@
 import json
 import requests
 import shopify
+from awesoon.core.query import Query
 
 from awesoon.core.shopify.util import decode_html_policies, strip_tags
 API_VERSION = '2023-01'
@@ -23,7 +24,7 @@ def _make_gql_request(shop_url, token, query):
     return json.loads(data)
 
 
-class ShopifyQuery:
+class ShopifyQuery(Query):
     @classmethod
     def get_shop_policies(cls, shop_url, token):
         query = """
