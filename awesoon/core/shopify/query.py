@@ -10,13 +10,10 @@ API_VERSION = "2023-01"
 
 SHP_FIELDS = [
     "id", "title", "product_type", "body_html", "variants", "handle", "status", "tags", "vendor"
-    # "options", "published_at",  
 ]
 
 VARIANT_FIELDS = [
     "id", "title", "grams", "inventory_quantity", "price",
-    # "compare_at_price", "fulfillment_service",  "inventory_policy",
-    # "inventoryLevel",  "option",  "taxable"
 ]
 
 
@@ -60,15 +57,15 @@ class ShopifyQuery(Query):
                 product_pages = product_pages.next_page()
         products = []
         for product in data:
-            if product.get("status", None) == "active":
+            if product.get("status") == "active":
                 product = {field: product.get(field) for field in SHP_FIELDS}
-                product["body_html"] = strip_tags(product.pop("body_html", None))
+                product["body_html"] = strip_tags(product.get("body_html"))
                 product["url"] = f"""{shop_url}/products/{product.pop("handle", None)}"""
                 variants = product.get("variants")
                 if variants:
                     product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
                     for variant in product["variants"]:
-                        variant["url"] = f"""{product.get("url")}?variant={variant.get("id")}"""
+                        variant["url"] = f"""{product.get("url")}?variant={variant.pop("id")}"""
                 products.append(product)
             else:
                 pass

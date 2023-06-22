@@ -47,7 +47,7 @@ class ShopGetProducts(Resource):
         products = get_shop_products(shop)
         products = paginate_resources(products, args)
         result = {
-            "products": [product.processed() for product in products]
+            "products": [product.raw() for product in products]
         }
         return result
 

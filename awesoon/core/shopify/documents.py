@@ -6,7 +6,6 @@ from abc import ABC
 class ShopifyObject(ABC):
     def __init__(self, raw) -> None:
         self._raw = raw
-        self.process_document()
 
     def process_document(self):
         self._processed = self.raw()

@@ -29,6 +29,8 @@ class ShopifyEmbedding(ABC):
 class ProductEmbedding(ShopifyEmbedding):
 
     def get_documents(self):
+        for object in self.objects:
+            object.process_document()
         return [object.processed() for object in self.objects]
 
 
