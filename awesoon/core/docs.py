@@ -34,7 +34,8 @@ def generate_documents(shop_id, app_name):
     hash_map = {hash_dict.get("id"): hash_dict.get("hash") for hash_dict in hashes}
 
     docs = []
-    scan_version_id = uuid4().hex    
+    dels = []
+    scan_version_id = uuid4().hex
 
     filtered_policies = filter_by_hash(policies, hash_map)
     filtered_products = filter_by_hash(products, hash_map)
@@ -44,10 +45,10 @@ def generate_documents(shop_id, app_name):
     docs.extend(ProductEmbedding(filtered_products, scan_version_id).get_embedded_documents())
     docs.extend(CategoryEmbedding(filtered_categories, scan_version_id).get_embedded_documents())
 
-    return docs
+    return [docs, dels]
 
 
-def shop_compute(shop_id, scan_id, args):
+def scan_shop(shop_id, scan_id, args):
     """
     Send shop information to the database
     Args:
@@ -57,9 +58,12 @@ def shop_compute(shop_id, scan_id, args):
         Returns success message
     """
     app_name = args["app_name"]
-    documents = generate_documents(shop_id, app_name=app_name)
+    documents, deletions = generate_documents(shop_id, app_name=app_name)
     for document in documents:
-        db.add_doc(shop_id, document)
+        db.add_doc(scan_id, document)
+
+    for deletion in deletions:
+        db.remove_doc(scan_id, deletion)
 
     return True
 
@@ -71,8 +75,7 @@ def initiate_scan(shop_id, args):
         shop_id: unique shop indentifier to retrieve information from
         args: includes the filter params (app_name)
     Return:
-        Confirms that a scan is pending
+        scan id for future requests
     """
-    db.post_new_scan(shop_id)
-
-    return 202
+    scan_id = db.post_new_scan(shop_id)
+    return scan_id
