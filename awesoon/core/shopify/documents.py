@@ -1,29 +1,61 @@
 
 
 from abc import ABC
+from awesoon.core.models.type_enums import DocType
 
 
 class ShopifyObject(ABC):
     def __init__(self, raw) -> None:
         self._raw = raw
+        self._raw_hash = hash(raw)
+        self._identifier = self.identify()
+        self._type = self.typify()
 
-    def process_document(self):
+    # Set
+    def process(self):
         self._processed = self.raw()
 
+    def identify(self):
+        return "unidentified"
+
+    def typify(self):
+        return "untyped"
+
+    # Get
     def raw(self):
         return self._raw
-    
+
+    def raw_hash(self):
+        return self._raw_hash
+
     def processed(self):
         return self._processed
 
+    def identifier(self):
+        return self._identifier
+
+    def type(self):
+        return self._type
+
 
 class Policy(ShopifyObject):
-    pass
+
+    def typify(self):
+        return DocType.policy
+
+    def identify(self):
+        return "policy"
 
 
 class Product(ShopifyObject):
 
-    def process_document(self):
+    def typify(self):
+        return DocType.product
+
+    def identify(self):
+        return self.raw().get("id")
+
+    def process(self):
         product_raw = self.raw()
 
         processed = f"""
@@ -48,4 +80,14 @@ Additional search tags: {product_raw.get("tags")}
 
 
 class Category(ShopifyObject):
-    pass
+
+    def typify(self):
+        return DocType.category
+    
+    def identify(self):
+        return self.raw()
+    
+    def process(self):
+        category_raw = self.raw()
+        processed = f"Here is a category of products that this store sells: {category_raw}"
+        self._processed = processed

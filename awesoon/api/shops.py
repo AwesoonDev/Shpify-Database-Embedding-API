@@ -1,6 +1,6 @@
 from flask import request
 from awesoon.core.exceptions import ShopInstallationNotFoundError
-from awesoon.core.docs import shop_compute
+from awesoon.core.docs import shop_compute, initiate_scan
 from flask_restx import Namespace, Resource, marshal
 
 
@@ -18,7 +18,8 @@ class ShopCompute(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            status = shop_compute(id, args)
+            scan_id = initiate_scan(id, args)
+            status = shop_compute(id, scan_id, args)
             if status:
                 return {"message": "success"}, 200
             ns.abort(400, "Could not compute")

@@ -10,6 +10,13 @@ from awesoon.core.shopify.embeddings import CategoryEmbedding, PolicyEmbedding, 
 
 db = DatabaseApiClient()
 
+def filter_by_hash(unfiltered_list, hash_map):
+    filtered_list = []
+    for object in unfiltered_list:
+        if object.raw_hash() != hash_map.get(object.identifier()):
+            filtered_list.extend(object)
+
+    return filtered_list
 
 def generate_documents(shop_id, app_name):
     """
@@ -23,16 +30,24 @@ def generate_documents(shop_id, app_name):
     policies = queries["shopify"].get_shop_policies(shop["shop_url"], shop["access_token"])
     products = queries["shopify"].get_shop_products(shop["shop_url"], shop["access_token"])
     categories = queries["shopify"].get_shop_categories(shop["shop_url"], shop["access_token"])
-    scan_version_id = uuid4().hex
+    hashes = db.get_shop_hashes(shop_id)
+    hash_map = {hash_dict.get("id"): hash_dict.get("hash") for hash_dict in hashes}
+
     docs = []
-    docs.extend(PolicyEmbedding(policies, scan_version_id).get_embedded_documents())
-    docs.extend(ProductEmbedding(products, scan_version_id).get_embedded_documents())
-    docs.extend(CategoryEmbedding(categories, scan_version_id).get_embedded_documents())
+    scan_version_id = uuid4().hex    
+
+    filtered_policies = filter_by_hash(policies, hash_map)
+    filtered_products = filter_by_hash(products, hash_map)
+    filtered_categories = filter_by_hash(categories, hash_map)
+
+    docs.extend(PolicyEmbedding(filtered_policies, scan_version_id).get_embedded_documents())
+    docs.extend(ProductEmbedding(filtered_products, scan_version_id).get_embedded_documents())
+    docs.extend(CategoryEmbedding(filtered_categories, scan_version_id).get_embedded_documents())
 
     return docs
 
 
-def shop_compute(shop_id, args):
+def shop_compute(shop_id, scan_id, args):
     """
     Send shop information to the database
     Args:
@@ -47,3 +62,17 @@ def shop_compute(shop_id, args):
         db.add_doc(shop_id, document)
 
     return True
+
+
+def initiate_scan(shop_id, args):
+    """
+    Inform database a scan has initiated
+    Args:
+        shop_id: unique shop indentifier to retrieve information from
+        args: includes the filter params (app_name)
+    Return:
+        Confirms that a scan is pending
+    """
+    db.post_new_scan(shop_id)
+
+    return 202

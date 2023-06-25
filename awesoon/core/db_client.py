@@ -21,6 +21,12 @@ class DatabaseApiClient:
     def get_shop(self, shop_id):
         return self._make_request(requests.get, f"shops/{shop_id}")
 
+    def post_new_scan(self, shop_id):
+        pass
+
+    def get_scan_hashes(self, shop_id, scan_id):
+        return self._make_request(requests.get, f"shops/{shop_id}/{scan_id}/hashes")
+
     def add_doc(self, shop_id, doc: doc):
         doc_data = copy(doc.__dict__)
         return self._make_request(requests.post, f"shops/{shop_id}/docs", json=doc_data)

@@ -19,28 +19,27 @@ class ShopifyEmbedding(ABC):
         docs = self.get_documents()
         embeddings = self.openai.embed_documents(docs)
         return [
-            doc(document=docs[i], embedding=embeddings[i], docs_version=self.embedding_version) for i in range(len(docs))
+            doc(document=docs[i],
+                embedding=embeddings[i],
+                docs_version=self.embedding_version,
+                type=self.objects[i].type(),
+                identifier=self.objects[i].identifier(),
+                hash=self.objects[i].raw_hash()
+                ) for i in range(len(docs))
         ]
 
     def get_documents(self):
-        pass
-
-
-class ProductEmbedding(ShopifyEmbedding):
-
-    def get_documents(self):
         for object in self.objects:
-            object.process_document()
+            object.process()
         return [object.processed() for object in self.objects]
 
 
-class CategoryEmbedding(ShopifyEmbedding):
+class ProductEmbedding(ShopifyEmbedding):
+    pass
 
-    def get_documents(self):
-        docs = []
-        for category in self.objects:
-            docs.append(f"Here is a category of products that this store sells: {category.raw()}")
-        return docs
+
+class CategoryEmbedding(ShopifyEmbedding):
+    pass
 
 
 class PolicyEmbedding(ShopifyEmbedding):
