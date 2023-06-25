@@ -21,8 +21,8 @@ class DatabaseApiClient:
     def get_shop(self, shop_id):
         return self._make_request(requests.get, f"shops/{shop_id}")
 
-    def post_new_scan(self, shop_id):
-        pass
+    def initiate_new_scan(self, shop_id):
+        return self._make_request(requests.post, f"shops/{shop_id}/initiate_scan")
 
     def get_scan_hashes(self, scan_id):
         return self._make_request(requests.get, f"scans/{scan_id}/hashes")
@@ -30,9 +30,10 @@ class DatabaseApiClient:
     def add_doc(self, scan_id, doc: doc):
         doc_data = copy(doc.__dict__)
         return self._make_request(requests.post, f"scans/{scan_id}/docs", json=doc_data)
-    
+
     def update_doc(self, scan_id, doc_id, doc: doc):
         doc_data = copy(doc.__dict__)
+        doc_id = doc.identifier
         return self._make_request(requests.put, f"scans/{scan_id}/docs/{doc_id}", json=doc_data)
 
     def remove_doc(self, scan_id, doc_id):

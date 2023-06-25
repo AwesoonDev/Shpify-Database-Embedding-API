@@ -1,22 +1,25 @@
 
-import re
 from uuid import uuid4
+from typing import List
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core import queries
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import TokenTextSplitter
-from awesoon.core.models.doc import doc
+from awesoon.core.shopify.documents import ShopifyObject
 from awesoon.core.shopify.embeddings import CategoryEmbedding, PolicyEmbedding, ProductEmbedding
 
 db = DatabaseApiClient()
 
-def filter_by_hash(unfiltered_list, hash_map):
-    filtered_list = []
-    for object in unfiltered_list:
-        if object.raw_hash() != hash_map.get(object.identifier()):
-            filtered_list.extend(object)
 
-    return filtered_list
+def filter_by_hash(unfiltered_list: List[ShopifyObject], hash_map):
+    update, add = []
+    for object in unfiltered_list:
+        hash_to_compare = hash_map.pop(object.identifier(), None)
+        if hash_to_compare is None:
+            add.extend(object)
+        elif hash_to_compare != object.raw_rash:
+            update.extend(object)
+
+    return [update, add]
+
 
 def generate_documents(shop_id, app_name):
     """
@@ -33,19 +36,23 @@ def generate_documents(shop_id, app_name):
     hashes = db.get_shop_hashes(shop_id)
     hash_map = {hash_dict.get("id"): hash_dict.get("hash") for hash_dict in hashes}
 
-    docs = []
-    dels = []
-    scan_version_id = uuid4().hex
+    update_policies, add_policies = filter_by_hash(policies, hash_map)
+    update_products, add_products = filter_by_hash(products, hash_map)
+    update_categories, add_categories = filter_by_hash(categories, hash_map)
 
-    filtered_policies = filter_by_hash(policies, hash_map)
-    filtered_products = filter_by_hash(products, hash_map)
-    filtered_categories = filter_by_hash(categories, hash_map)
+    update_docs = []
+    update_docs.extend(PolicyEmbedding(update_policies).get_embedded_documents())
+    update_docs.extend(ProductEmbedding(update_products).get_embedded_documents())
+    update_docs.extend(CategoryEmbedding(update_categories).get_embedded_documents())
+    
+    add_docs = []
+    add_docs.extend(PolicyEmbedding(add_policies).get_embedded_documents())
+    add_docs.extend(ProductEmbedding(add_products).get_embedded_documents())
+    add_docs.extend(CategoryEmbedding(add_categories).get_embedded_documents())
 
-    docs.extend(PolicyEmbedding(filtered_policies, scan_version_id).get_embedded_documents())
-    docs.extend(ProductEmbedding(filtered_products, scan_version_id).get_embedded_documents())
-    docs.extend(CategoryEmbedding(filtered_categories, scan_version_id).get_embedded_documents())
+    del_docs = hash_map.keys()
 
-    return [docs, dels]
+    return [update_docs, add_docs, del_docs]
 
 
 def scan_shop(shop_id, scan_id, args):
@@ -58,9 +65,12 @@ def scan_shop(shop_id, scan_id, args):
         Returns success message
     """
     app_name = args["app_name"]
-    documents, deletions = generate_documents(shop_id, app_name=app_name)
-    for document in documents:
-        db.add_doc(scan_id, document)
+    updates, adds, deletions = generate_documents(shop_id, app_name=app_name)
+    for update in updates:
+        db.update_doc(scan_id, update)
+
+    for add in adds:
+        db.add_doc(scan_id, add)
 
     for deletion in deletions:
         db.remove_doc(scan_id, deletion)
