@@ -39,6 +39,8 @@ def generate_documents(shop_id, app_name):
     update_policies, add_policies = filter_by_hash(policies, hash_map)
     update_products, add_products = filter_by_hash(products, hash_map)
     update_categories, add_categories = filter_by_hash(categories, hash_map)
+    # filter_by_hash pops all ids present in the data obtained from shopify. remaining keys are marked for deletion
+    del_docs = hash_map.keys()
 
     update_docs = []
     update_docs.extend(PolicyEmbedding(update_policies).get_embedded_documents())
@@ -50,7 +52,7 @@ def generate_documents(shop_id, app_name):
     add_docs.extend(ProductEmbedding(add_products).get_embedded_documents())
     add_docs.extend(CategoryEmbedding(add_categories).get_embedded_documents())
 
-    del_docs = hash_map.keys()
+
 
     return [update_docs, add_docs, del_docs]
 
