@@ -27,8 +27,8 @@ class ShopifyEmbedding(ABC):
         return [
             Doc(document=doc["document"],
                 embedding=emb,
-                type=doc["type"],
-                identifier=doc["identifier"],
+                doc_type=doc["type"],
+                doc_identifier=doc["identifier"],
                 hash=doc["hash"]
                 ) for doc, emb in zip(docs, embeddings)
         ]
