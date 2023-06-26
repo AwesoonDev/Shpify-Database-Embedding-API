@@ -1,7 +1,7 @@
 from flask import request
 from awesoon.core.exceptions import ShopInstallationNotFoundError
 from awesoon.core.docs import scan_shop, initiate_scan
-from awesoon.core.models.scan import scan, ScanStatus, TriggerType
+from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
 from flask_restx import Namespace, Resource, marshal
 
 
@@ -19,7 +19,7 @@ class ShopCompute(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            new_scan = scan(
+            new_scan = Scan(
                 status=ScanStatus.PENDING.value,
                 trigger_type=TriggerType.MANUAL.value,
                 shop_id=id
