@@ -34,7 +34,7 @@ class DatabaseApiClient:
 
     def add_doc(self, scan_id, doc: Doc):
         doc_data = copy(doc.__dict__)
-        return self._make_request(requests.put, f"scans/{scan_id}/docs", json=doc_data)
+        return self._make_request(requests.post, f"scans/{scan_id}/docs", json=doc_data)
 
     def update_doc(self, doc_id, doc: Doc):
         doc_data = copy(doc.__dict__)
