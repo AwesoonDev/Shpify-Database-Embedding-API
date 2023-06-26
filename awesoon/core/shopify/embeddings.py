@@ -30,7 +30,7 @@ class ShopifyEmbedding(ABC):
     def get_documents(self):
         documents = []
         for object in self.objects:
-            documents.extend(object.process())
+            documents.extend(object.processed())
         return documents
 
 
