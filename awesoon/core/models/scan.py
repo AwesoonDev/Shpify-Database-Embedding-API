@@ -20,6 +20,9 @@ class TriggerType(enum.Enum):
 class scan_status:
     status: ScanStatus
 
+    def to_dict(self):
+        return {"status": self.status.value}
+
 
 @dataclass
 class scan:

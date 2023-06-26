@@ -65,10 +65,11 @@ def generate_raw_documents(shop_id, app_name):
     platform = "shopify"
     url = shop["shop_url"]
     token = shop["access_token"]
-    policies = queries[platform].get_shop_policies(url, token)
-    products = queries[platform].get_shop_products(url, token)
-    categories = queries[platform].get_shop_categories(url, token)
-    return policies + products + categories
+    shopify_raw = []
+    shopify_raw.extend(queries[platform].get_shop_policies(url, token))
+    shopify_raw.extend(queries[platform].get_shop_products(url, token))
+    shopify_raw.extend(queries[platform].get_shop_categories(url, token))
+    return shopify_raw
 
 
 def send_docs(scan_id, update_ids_docs, add_docs, del_ids):
