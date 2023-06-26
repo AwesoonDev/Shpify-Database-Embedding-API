@@ -10,6 +10,7 @@ class ShopifyObject(ABC):
         self._raw = raw
         self._identifier = self.identify()
         self._type = self.typify()
+        self.process()
 
     # Set
     def process(self):
@@ -26,7 +27,7 @@ class ShopifyObject(ABC):
         return self._raw
 
     def raw_hash(self):
-        return hash(self.processed()[0])
+        return hash(' '.join(self.processed()))
 
     def processed(self):
         return self._processed
