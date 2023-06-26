@@ -42,7 +42,7 @@ class ShopifyObject(ABC):
 class Policy(ShopifyObject):
 
     def typify(self):
-        return DocType.POLICY
+        return DocType.POLICY.value
 
     def identify(self):
         return "policy"
@@ -55,7 +55,7 @@ class Policy(ShopifyObject):
 class Product(ShopifyObject):
 
     def typify(self):
-        return DocType.PRODUCT
+        return DocType.PRODUCT.value
 
     def identify(self):
         return self.raw().get("id")
@@ -87,7 +87,7 @@ Additional search tags: {product_raw.get("tags")}
 class Category(ShopifyObject):
 
     def typify(self):
-        return DocType.CATEGORY
+        return DocType.CATEGORY.value
     
     def identify(self):
         return self.raw()
