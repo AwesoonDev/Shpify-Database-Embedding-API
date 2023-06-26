@@ -3,7 +3,7 @@ from uuid import uuid4
 from typing import List
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core import queries
-from awesoon.core.models.scan import scan_status, ScanStatus
+from awesoon.core.models.scan import ScanStatus
 from awesoon.core.shopify.documents import ShopifyObject
 from awesoon.core.shopify.embeddings import ShopifyEmbedding
 
