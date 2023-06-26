@@ -8,7 +8,6 @@ from langchain.text_splitter import TokenTextSplitter
 class ShopifyObject(ABC):
     def __init__(self, raw) -> None:
         self._raw = raw
-        self._raw_hash = hash(raw)
         self._identifier = self.identify()
         self._type = self.typify()
 
@@ -27,7 +26,7 @@ class ShopifyObject(ABC):
         return self._raw
 
     def raw_hash(self):
-        return self._raw_hash
+        return hash(self.processed()[0])
 
     def processed(self):
         return self._processed
