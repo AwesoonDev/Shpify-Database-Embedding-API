@@ -40,7 +40,7 @@ class ShopifyEmbedding(ABC):
                 docs.append({
                         "document": doc,
                         "type": object.type(),
-                        "identifer": object.identifier(),
+                        "identifier": object.identifier(),
                         "hash": object.raw_hash()
                     })
         return docs
