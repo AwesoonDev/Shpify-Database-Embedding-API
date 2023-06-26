@@ -1,6 +1,7 @@
 
 
 from abc import ABC
+import hashlib
 from awesoon.core.models.doc_type_enums import DocType
 from langchain.text_splitter import TokenTextSplitter
 
@@ -37,7 +38,11 @@ class ShopifyResource(ABC):
         return self._raw
 
     def raw_hash(self):
-        return hash(' '.join(self.processed()))
+        to_hash = ' '.join(self.processed())
+        hash_object = hashlib.sha256()
+        hash_object.update(to_hash.encode())
+        hash_value = hash_object.hexdigest()
+        return hash_value
 
     def processed(self):
         return self._processed
