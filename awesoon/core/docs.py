@@ -6,12 +6,23 @@ from awesoon.core import queries
 from awesoon.core.models.scan import scan_status, ScanStatus
 from awesoon.core.shopify.documents import ShopifyObject
 from awesoon.core.shopify.embeddings import ShopifyEmbedding
-# CategoryEmbedding, PolicyEmbedding, ProductEmbedding
+
 
 db = DatabaseApiClient()
 
 
 def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
+    """
+    Filter the list of ShopifyObject into objects to update, add, delete, and ignore.
+    Args:
+        shopify_raw: A list of ShopifyObject to filter as returned by generate_raw_documents
+        hash_map: a dict of ids and hashes as returned by fetch_hash_map
+    Return:
+        update_raw: 
+        update_ids:
+        add_raw:
+        del_ids:
+    """
     update_raw, update_ids, add_raw = []
     for object in shopify_raw:
         hash_to_compare = hash_map.pop(object.identifier(), None)
@@ -23,38 +34,57 @@ def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
             update_raw.append(object)
             update_ids.append(hash_to_compare[1])
 
-    return update_raw, update_ids, add_raw
+    # this function pops all ids present in the data obtained from shopify.
+    # remaining ids are marked for deletion. value[1] is the doc_id.
+    del_ids = [value[1] for value in hash_map.values()]
+    return update_raw, update_ids, add_raw, del_ids
 
 
-def generate_documents(shop_id, scan_id, app_name):
+def fetch_hash_map(scan_id):
+    """
+    Fetch document hashes and ids and restructure into a hash map
+    Args:
+        scan_id: unique scan identifier that holds the desired docs
+    Return:
+        Dictionary of {local document identifier: [hash, document's unique database id]}
+    """
+    hashes = db.get_shop_docs(scan_id)
+    hash_map = {hash_dict.get("doc_identifier"): [hash_dict.get("hash"), hash_dict.get("id")] for hash_dict in hashes}
+    return hash_map
+
+
+def generate_raw_documents(shop_id, app_name):
     """
     generate documents for a shop
     Args:
         shop_id: unique shop indentifier to retrieve information from
     Return:
-        list of documents
+        list of raw shopify objects
     """
-    shop = db.get_shop_installation(shop_id, app_name=app_name)
+    shop = db.get_shop_installation(shop_id, app_name)
     platform = "shopify"
     url = shop["shop_url"]
     token = shop["access_token"]
     policies = queries[platform].get_shop_policies(url, token)
     products = queries[platform].get_shop_products(url, token)
     categories = queries[platform].get_shop_categories(url, token)
+    return policies + products + categories
 
-    hashes = db.get_shop_docs(scan_id)
-    hash_map = {hash_dict.get("doc_identifier"): [hash_dict.get("hash"), hash_dict.get("id")] for hash_dict in hashes}
 
-    shopify_raw = policies + products + categories
-    update_raw, update_ids, add_raw = filter_by_hash(shopify_raw, hash_map)
-    # filter_by_hash pops all ids present in the data obtained from shopify.
-    # remaining ids are marked for deletion. value[1] is the doc_id.
-    del_ids = [value[1] for value in hash_map.values()]
+def send_docs(scan_id, update_ids_docs, add_docs, del_ids):
+    """
+    Sends all of the docs that we have generated
+    """
+    for id_doc in update_ids_docs:
+        db.update_doc(id_doc[0], id_doc[1])
 
-    update_docs = ShopifyEmbedding(update_raw).get_embedded_documents()
-    add_docs = ShopifyEmbedding(add_raw).get_embedded_documents()
+    for doc in add_docs:
+        db.add_doc(scan_id, doc)
 
-    return update_docs, update_ids, add_docs, del_ids
+    for id in del_ids:
+        db.remove_doc(id)
+
+    return True
 
 
 def scan_shop(shop_id, scan_id, args):
@@ -69,18 +99,17 @@ def scan_shop(shop_id, scan_id, args):
     db.update_scan(scan_id, scan_status(ScanStatus.IN_PROGRESS))
     app_name = args["app_name"]
     try:
-        update_docs, update_ids, add_docs, del_ids = generate_documents(shop_id, app_name=app_name)
-        for i in range(update_docs):
-            db.update_doc(update_ids[i], update_docs[i])
-
-        for doc in add_docs:
-            db.add_doc(scan_id, doc)
-
-        for id in del_ids:
-            db.remove_doc(id)
-
-        db.update_scan(scan_id, scan_status(ScanStatus.COMPLETED))
-        return True
+        shopify_raw = generate_raw_documents(shop_id, app_name=app_name)
+        hash_map = fetch_hash_map(scan_id)
+        update_raw, update_ids, add_raw, del_ids = filter_by_hash(shopify_raw, hash_map)
+        update_ids_docs = zip(update_ids, ShopifyEmbedding(update_raw).get_embedded_documents())
+        add_docs = ShopifyEmbedding(add_raw).get_embedded_documents()
+        status = send_docs(scan_id, update_ids_docs, add_docs, del_ids)
+        
+        if status:
+            db.update_scan(scan_id, scan_status(ScanStatus.COMPLETED))
+            return True
+        
     except Exception:
         db.update_scan(scan_id, scan_status(ScanStatus.ERROR))
         return False
