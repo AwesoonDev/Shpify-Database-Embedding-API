@@ -6,7 +6,6 @@ from langchain.embeddings import OpenAIEmbeddings
 from awesoon.core.models.doc import doc
 
 from awesoon.core.shopify.documents import ShopifyObject
-from langchain.text_splitter import TokenTextSplitter
 
 
 class ShopifyEmbedding(ABC):
@@ -29,9 +28,10 @@ class ShopifyEmbedding(ABC):
         ]
 
     def get_documents(self):
+        documents = []
         for object in self.objects:
-            object.process()
-        return [object.processed() for object in self.objects]
+            documents.extend(object.process())
+        return documents
 
 
 class ProductEmbedding(ShopifyEmbedding):
@@ -43,10 +43,4 @@ class CategoryEmbedding(ShopifyEmbedding):
 
 
 class PolicyEmbedding(ShopifyEmbedding):
-
-    def get_documents(self):
-        large_obj = ""
-        for obj in self.objects:
-            large_obj += obj.raw()
-        text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
-        return text_splitter.split_text(large_obj)
+    pass

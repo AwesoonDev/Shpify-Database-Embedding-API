@@ -3,25 +3,30 @@ from uuid import uuid4
 from typing import List
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core import queries
+from awesoon.core.models.scan import scan_status, ScanStatus
 from awesoon.core.shopify.documents import ShopifyObject
-from awesoon.core.shopify.embeddings import CategoryEmbedding, PolicyEmbedding, ProductEmbedding
+from awesoon.core.shopify.embeddings import ShopifyEmbedding
+# CategoryEmbedding, PolicyEmbedding, ProductEmbedding
 
 db = DatabaseApiClient()
 
 
-def filter_by_hash(unfiltered_list: List[ShopifyObject], hash_map):
-    update, add = []
-    for object in unfiltered_list:
+def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
+    update_raw, update_ids, add_raw = []
+    for object in shopify_raw:
         hash_to_compare = hash_map.pop(object.identifier(), None)
         if hash_to_compare is None:
-            add.extend(object)
-        elif hash_to_compare != object.raw_rash:
-            update.extend(object)
+            add_raw.append(object)
+        # hash_to_compare[0] is the hash
+        elif hash_to_compare[0] != object.raw_rash:
+            # hash_to_compare[1] is the doc_id needed to update
+            update_raw.append(object)
+            update_ids.append(hash_to_compare[1])
 
-    return [update, add]
+    return update_raw, update_ids, add_raw
 
 
-def generate_documents(shop_id, app_name):
+def generate_documents(shop_id, scan_id, app_name):
     """
     generate documents for a shop
     Args:
@@ -30,31 +35,26 @@ def generate_documents(shop_id, app_name):
         list of documents
     """
     shop = db.get_shop_installation(shop_id, app_name=app_name)
-    policies = queries["shopify"].get_shop_policies(shop["shop_url"], shop["access_token"])
-    products = queries["shopify"].get_shop_products(shop["shop_url"], shop["access_token"])
-    categories = queries["shopify"].get_shop_categories(shop["shop_url"], shop["access_token"])
-    hashes = db.get_shop_hashes(shop_id)
-    hash_map = {hash_dict.get("id"): hash_dict.get("hash") for hash_dict in hashes}
+    platform = "shopify"
+    url = shop["shop_url"]
+    token = shop["access_token"]
+    policies = queries[platform].get_shop_policies(url, token)
+    products = queries[platform].get_shop_products(url, token)
+    categories = queries[platform].get_shop_categories(url, token)
 
-    update_policies, add_policies = filter_by_hash(policies, hash_map)
-    update_products, add_products = filter_by_hash(products, hash_map)
-    update_categories, add_categories = filter_by_hash(categories, hash_map)
-    # filter_by_hash pops all ids present in the data obtained from shopify. remaining keys are marked for deletion
-    del_docs = hash_map.keys()
+    hashes = db.get_shop_docs(scan_id)
+    hash_map = {hash_dict.get("doc_identifier"): [hash_dict.get("hash"), hash_dict.get("id")] for hash_dict in hashes}
 
-    update_docs = []
-    update_docs.extend(PolicyEmbedding(update_policies).get_embedded_documents())
-    update_docs.extend(ProductEmbedding(update_products).get_embedded_documents())
-    update_docs.extend(CategoryEmbedding(update_categories).get_embedded_documents())
-    
-    add_docs = []
-    add_docs.extend(PolicyEmbedding(add_policies).get_embedded_documents())
-    add_docs.extend(ProductEmbedding(add_products).get_embedded_documents())
-    add_docs.extend(CategoryEmbedding(add_categories).get_embedded_documents())
+    shopify_raw = policies + products + categories
+    update_raw, update_ids, add_raw = filter_by_hash(shopify_raw, hash_map)
+    # filter_by_hash pops all ids present in the data obtained from shopify.
+    # remaining ids are marked for deletion. value[1] is the doc_id.
+    del_ids = [value[1] for value in hash_map.values()]
 
+    update_docs = ShopifyEmbedding(update_raw).get_embedded_documents()
+    add_docs = ShopifyEmbedding(add_raw).get_embedded_documents()
 
-
-    return [update_docs, add_docs, del_docs]
+    return update_docs, update_ids, add_docs, del_ids
 
 
 def scan_shop(shop_id, scan_id, args):
@@ -66,28 +66,34 @@ def scan_shop(shop_id, scan_id, args):
     Return:
         Returns success message
     """
+    db.update_scan(scan_id, scan_status(ScanStatus.IN_PROGRESS))
     app_name = args["app_name"]
-    updates, adds, deletions = generate_documents(shop_id, app_name=app_name)
-    for update in updates:
-        db.update_doc(scan_id, update)
+    try:
+        update_docs, update_ids, add_docs, del_ids = generate_documents(shop_id, app_name=app_name)
+        for i in range(update_docs):
+            db.update_doc(update_ids[i], update_docs[i])
 
-    for add in adds:
-        db.add_doc(scan_id, add)
+        for doc in add_docs:
+            db.add_doc(scan_id, doc)
 
-    for deletion in deletions:
-        db.remove_doc(scan_id, deletion)
+        for id in del_ids:
+            db.remove_doc(id)
 
-    return True
+        db.update_scan(scan_id, scan_status(ScanStatus.COMPLETED))
+        return True
+    except Exception:
+        db.update_scan(scan_id, scan_status(ScanStatus.ERROR))
+        return False
 
 
-def initiate_scan(shop_id, args):
+def initiate_scan(new_scan):
     """
     Inform database a scan has initiated
     Args:
         shop_id: unique shop indentifier to retrieve information from
         args: includes the filter params (app_name)
     Return:
-        scan id for future requests
+        scan id for future requests, status for response code
     """
-    scan_id = db.post_new_scan(shop_id)
-    return scan_id
+    return db.post_new_scan(new_scan)
+

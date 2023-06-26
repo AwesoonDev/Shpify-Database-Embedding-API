@@ -1,7 +1,8 @@
 
 
 from abc import ABC
-from awesoon.core.models.type_enums import DocType
+from awesoon.core.models.doc_type_enums import DocType
+from langchain.text_splitter import TokenTextSplitter
 
 
 class ShopifyObject(ABC):
@@ -13,7 +14,7 @@ class ShopifyObject(ABC):
 
     # Set
     def process(self):
-        self._processed = self.raw()
+        self._processed = [self.raw()]
 
     def identify(self):
         return "unidentified"
@@ -41,16 +42,20 @@ class ShopifyObject(ABC):
 class Policy(ShopifyObject):
 
     def typify(self):
-        return DocType.policy
+        return DocType.POLICY
 
     def identify(self):
         return "policy"
+    
+    def process(self):
+        text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
+        self._processed = text_splitter.split_text(self.raw())
 
 
 class Product(ShopifyObject):
 
     def typify(self):
-        return DocType.product
+        return DocType.PRODUCT
 
     def identify(self):
         return self.raw().get("id")
@@ -76,13 +81,13 @@ Variant URL: {variant.get("url")}
         processed += f"""
 Additional search tags: {product_raw.get("tags")}
 """
-        self._processed = processed
+        self._processed = [processed]
 
 
 class Category(ShopifyObject):
 
     def typify(self):
-        return DocType.category
+        return DocType.CATEGORY
     
     def identify(self):
         return self.raw()
@@ -90,4 +95,4 @@ class Category(ShopifyObject):
     def process(self):
         category_raw = self.raw()
         processed = f"Here is a category of products that this store sells: {category_raw}"
-        self._processed = processed
+        self._processed = [processed]
