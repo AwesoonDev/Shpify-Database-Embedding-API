@@ -9,10 +9,9 @@ from awesoon.core.shopify.documents import ShopifyObject
 
 
 class ShopifyEmbedding(ABC):
-    def __init__(self, objects: List[ShopifyObject], version: str) -> None:
+    def __init__(self, objects: List[ShopifyObject]) -> None:
         self.objects = objects
         self.openai = OpenAIEmbeddings()
-        self.embedding_version = version
 
     def get_embedded_documents(self) -> List[Doc]:
         docs = self.get_documents()
@@ -20,7 +19,6 @@ class ShopifyEmbedding(ABC):
         return [
             Doc(document=docs[i],
                 embedding=embeddings[i],
-                docs_version=self.embedding_version,
                 type=self.objects[i].type(),
                 identifier=self.objects[i].identifier(),
                 hash=self.objects[i].raw_hash()

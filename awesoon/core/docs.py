@@ -23,7 +23,7 @@ def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
         add_raw:
         del_ids:
     """
-    update_raw, update_ids, add_raw = []
+    update_raw, update_ids, add_raw = [], [], []
     for object in shopify_raw:
         hash_to_compare = hash_map.pop(object.identifier(), None)
         if hash_to_compare is None:
@@ -40,7 +40,7 @@ def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
     return update_raw, update_ids, add_raw, del_ids
 
 
-def fetch_hash_map(scan_id):
+def fetch_hash_map(shop_id):
     """
     Fetch document hashes and ids and restructure into a hash map
     Args:
@@ -48,7 +48,7 @@ def fetch_hash_map(scan_id):
     Return:
         Dictionary of {local document identifier: [hash, document's unique database id]}
     """
-    hashes = db.get_shop_docs(scan_id)
+    hashes = db.get_shop_docs(shop_id)
     hash_map = {hash_dict.get("doc_identifier"): [hash_dict.get("hash"), hash_dict.get("id")] for hash_dict in hashes}
     return hash_map
 
@@ -101,7 +101,7 @@ def scan_shop(shop_id, scan_id, args):
     app_name = args["app_name"]
     try:
         shopify_raw = generate_raw_documents(shop_id, app_name=app_name)
-        hash_map = fetch_hash_map(scan_id)
+        hash_map = fetch_hash_map(shop_id)
         update_raw, update_ids, add_raw, del_ids = filter_by_hash(shopify_raw, hash_map)
         update_ids_docs = zip(update_ids, ShopifyEmbedding(update_raw).get_embedded_documents())
         add_docs = ShopifyEmbedding(add_raw).get_embedded_documents()

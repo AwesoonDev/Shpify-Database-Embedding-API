@@ -6,7 +6,6 @@ from typing import List
 class Doc:
     document: str
     embedding: List[float]
-    docs_version: str
     type: str
     identifier: str
     hash: str

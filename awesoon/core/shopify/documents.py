@@ -45,8 +45,8 @@ class Policy(ShopifyObject):
         return DocType.POLICY.value
 
     def identify(self):
-        return "policy"
-    
+        return DocType.POLICY.value
+
     def process(self):
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
         self._processed = text_splitter.split_text(self.raw())
