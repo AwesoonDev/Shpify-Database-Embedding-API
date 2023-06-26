@@ -97,7 +97,7 @@ def scan_shop(shop_id, scan_id, args):
     Return:
         Returns success message
     """
-    db.update_scan(scan_id, scan_status(ScanStatus.IN_PROGRESS))
+    db.update_scan(scan_id, ScanStatus.IN_PROGRESS)
     app_name = args["app_name"]
     try:
         shopify_raw = generate_raw_documents(shop_id, app_name=app_name)
@@ -108,20 +108,19 @@ def scan_shop(shop_id, scan_id, args):
         status = send_docs(scan_id, update_ids_docs, add_docs, del_ids)
         
         if status:
-            db.update_scan(scan_id, scan_status(ScanStatus.COMPLETED))
+            db.update_scan(scan_id, ScanStatus.COMPLETED)
             return True
         
     except Exception:
-        db.update_scan(scan_id, scan_status(ScanStatus.ERROR))
+        db.update_scan(scan_id, ScanStatus.ERROR)
         return False
 
 
 def initiate_scan(new_scan):
     """
-    Inform database a scan has initiated
+    Initiate a new scan in the database
     Args:
-        shop_id: unique shop indentifier to retrieve information from
-        args: includes the filter params (app_name)
+        new_scan: A scan object
     Return:
         scan id for future requests, status for response code
     """

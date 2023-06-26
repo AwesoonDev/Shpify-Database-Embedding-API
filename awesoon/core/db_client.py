@@ -2,7 +2,7 @@ import requests
 from awesoon.config import config
 from awesoon.core.exceptions import ShopInstallationNotFoundError
 from awesoon.core.models.doc import doc
-from awesoon.core.models.scan import scan, scan_status
+from awesoon.core.models.scan import scan, ScanStatus
 from copy import copy
 
 
@@ -40,9 +40,8 @@ class DatabaseApiClient:
         doc_data = copy(doc.__dict__)
         return self._make_request(requests.put, f"docs/{doc_id}", json=doc_data)
     
-    def update_scan(self, scan_id, scan_status: scan_status):
-        scan_status_data = copy(scan_status.__dict__)
-        return self._make_request(requests.put, f"scans/{scan_id}/status", json=scan_status_data)
+    def update_scan(self, scan_id, scan_status: ScanStatus):
+        return self._make_request(requests.put, f"scans/{scan_id}/status", json={"status": scan_status.value})
 
     def remove_doc(self, doc_id):
         return self._make_request(requests.delete, f"docs/{doc_id}")

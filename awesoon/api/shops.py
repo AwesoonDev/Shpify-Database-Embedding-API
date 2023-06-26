@@ -20,8 +20,8 @@ class ShopCompute(Resource):
         try:
             args = compute_parser.parse_args()
             new_scan = scan(
-                status=ScanStatus.PENDING,
-                trigger_type=TriggerType.MANUAL,
+                status=ScanStatus.PENDING.value,
+                trigger_type=TriggerType.MANUAL.value,
                 shop_id=id
             )
             scan_id, status = initiate_scan(new_scan)
