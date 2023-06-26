@@ -30,7 +30,7 @@ class DatabaseApiClient:
         return self._make_request(requests.get, f"shops/{shop_id}/docs")
 
     def get_scan_docs(self, scan_id):
-        return self._make_request(requests.get, f"scans/{scan_id}/docs")
+        return self._make_request(requests.get, f"scans/{scan_id}/docs", headers={'X-fields': '{id, hash, document_id}'})
 
     def add_doc(self, scan_id, doc: Doc):
         doc_data = copy(doc.__dict__)
