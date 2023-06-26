@@ -29,7 +29,7 @@ def filter_by_hash(shopify_raw: List[ShopifyResource], hash_map):
         if hash_to_compare is None:
             add_raw.append(object)
         # hash_to_compare[0] is the hash
-        elif hash_to_compare[0] != object.raw_rash():
+        elif hash_to_compare[0] != object.raw_hash():
             # hash_to_compare[1] is the doc_id needed to update
             update_raw.append(object)
             update_ids.append(hash_to_compare[1])
