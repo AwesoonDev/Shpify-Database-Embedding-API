@@ -5,7 +5,17 @@ from awesoon.core.models.doc_type_enums import DocType
 from langchain.text_splitter import TokenTextSplitter
 
 
-class ShopifyObject(ABC):
+class ShopifyResource(ABC):
+    """ShopifyResource
+
+    Stores/serves the shopify resource in a raw format (type: Any)
+    Stores/serves identity and type (implemented by children)
+    Process/serve resource => A processed resource is of (type: List[str])
+    Create/serve hash of resource ?
+    
+    Args:
+        ABC (_type_): _description_
+    """    
     def __init__(self, raw) -> None:
         self._raw = raw
         self._identifier = self.identify()
@@ -39,7 +49,7 @@ class ShopifyObject(ABC):
         return self._type
 
 
-class Policy(ShopifyObject):
+class Policy(ShopifyResource):
 
     def typify(self):
         return DocType.POLICY.value
@@ -52,7 +62,7 @@ class Policy(ShopifyObject):
         self._processed = text_splitter.split_text(self.raw())
 
 
-class Product(ShopifyObject):
+class Product(ShopifyResource):
 
     def typify(self):
         return DocType.PRODUCT.value
@@ -84,7 +94,7 @@ Additional search tags: {product_raw.get("tags")}
         self._processed = [processed]
 
 
-class Category(ShopifyObject):
+class Category(ShopifyResource):
 
     def typify(self):
         return DocType.CATEGORY.value

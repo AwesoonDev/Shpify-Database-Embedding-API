@@ -4,14 +4,14 @@ from typing import List
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core import queries
 from awesoon.core.models.scan import ScanStatus
-from awesoon.core.shopify.documents import ShopifyObject
+from awesoon.core.shopify.documents import ShopifyResource
 from awesoon.core.shopify.embeddings import ShopifyEmbedding
 import logging
 
 db = DatabaseApiClient()
 
 
-def filter_by_hash(shopify_raw: List[ShopifyObject], hash_map):
+def filter_by_hash(shopify_raw: List[ShopifyResource], hash_map):
     """
     Filter the list of ShopifyObject into objects to update, add, delete, and ignore.
     Args:
