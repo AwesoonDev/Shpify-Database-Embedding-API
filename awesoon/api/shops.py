@@ -22,9 +22,9 @@ class ShopCompute(Resource):
             new_scan = Scan(
                 status=ScanStatus.PENDING,
                 trigger_type=TriggerType.MANUAL,
-                shop_id=id
+                shop_id=int(id)
             )
-            scan_id, status = initiate_scan(new_scan)
+            scan_id = initiate_scan(new_scan)
             status = scan_shop(id, scan_id, args)
             if status:
                 return {"message": "success"}, 200

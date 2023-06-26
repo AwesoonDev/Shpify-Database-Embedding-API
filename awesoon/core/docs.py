@@ -3,10 +3,10 @@ from uuid import uuid4
 from typing import List
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core import queries
-from awesoon.core.models.scan import scan_status, ScanStatus
+from awesoon.core.models.scan import ScanStatus
 from awesoon.core.shopify.documents import ShopifyObject
 from awesoon.core.shopify.embeddings import ShopifyEmbedding
-
+import logging
 
 db = DatabaseApiClient()
 
@@ -112,6 +112,7 @@ def scan_shop(shop_id, scan_id, args):
             return True
         
     except Exception:
+        logging.exception("Scan error happened")
         db.update_scan(scan_id, ScanStatus.ERROR)
         return False
 

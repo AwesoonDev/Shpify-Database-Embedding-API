@@ -20,7 +20,7 @@ class TriggerType(enum.Enum):
 class Scan:
     status: ScanStatus
     trigger_type: TriggerType
-    shop_id: str
+    shop_id: int
 
     def to_dict(self):
         return {
