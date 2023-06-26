@@ -25,7 +25,7 @@ def filter_by_hash(shopify_raw: List[ShopifyResource], hash_map):
     """
     update_raw, update_ids, add_raw = [], [], []
     for object in shopify_raw:
-        hash_to_compare = hash_map.pop(object.identifier(), None)
+        hash_to_compare = hash_map.pop(str(object.identifier()), None)
         if hash_to_compare is None:
             add_raw.append(object)
         # hash_to_compare[0] is the hash
