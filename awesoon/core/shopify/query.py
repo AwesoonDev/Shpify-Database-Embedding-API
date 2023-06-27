@@ -63,7 +63,9 @@ class ShopifyQuery(Query):
         products = []
         for product in data:
             product = {field: product.get(field) for field in PRODUCT_LISTING_FIELDS}
-            product["id"] = product.get("product_id")
+            # id field is nested in product listing
+            # https://shopify.dev/docs/api/admin-rest/2023-04/resources/productlisting
+            product["id"] = product.get("product_id").get("product_id")
             product["body_html"] = strip_tags(product.get("body_html"))
             product["url"] = f"""{shop_url}/products/{product.pop("handle", None)}"""
             variants = product.get("variants")
