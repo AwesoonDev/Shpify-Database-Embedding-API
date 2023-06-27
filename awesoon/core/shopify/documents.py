@@ -66,9 +66,8 @@ class Policy(ShopifyResource):
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
         split_text = text_splitter.split_text(self.raw().get("body"))
         prepend = f"""Partial {self.raw().get("type").lower().replace("_", " ")}: """
-        postpend = f""" ---Full text url: {self.raw().get("url")}"""
         processed_text = [
-            f"""{prepend}{text}{postpend}""" for text in split_text
+            f"""{prepend}{text}""" for text in split_text
         ]
         self._processed = processed_text
 
