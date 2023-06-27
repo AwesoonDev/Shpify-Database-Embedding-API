@@ -118,6 +118,7 @@ def scan_shop(shop_id, scan_id, args):
     """
     db.update_scan(scan_id, ScanStatus.IN_PROGRESS)
     app_name = args["app_name"]
+    # shop_id = db.get_scan(scan_id)["shop_id"]
     try:
         shopify_raw = generate_raw_documents(shop_id, app_name=app_name)
         hash_map, guid_map = fetch_hash_map(shop_id)
@@ -125,11 +126,9 @@ def scan_shop(shop_id, scan_id, args):
         update_ids_docs = zip(update_ids, ShopifyEmbedding(update_raw).get_embedded_documents())
         add_docs = ShopifyEmbedding(add_raw).get_embedded_documents()
         status = send_docs(scan_id, update_ids_docs, add_docs, del_ids)
-        
         if status:
             db.update_scan(scan_id, ScanStatus.COMPLETED)
             return True
-        
     except Exception:
         logging.exception("Scan error happened")
         db.update_scan(scan_id, ScanStatus.ERROR)
@@ -145,4 +144,3 @@ def initiate_scan(new_scan):
         scan id for future requests, status for response code
     """
     return db.post_new_scan(new_scan)
-

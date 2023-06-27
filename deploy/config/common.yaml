@@ -1,3 +1,5 @@
 database:
   port: "8002"
   api_version: "v1"
+celery_broker:
+  port: "6379"
