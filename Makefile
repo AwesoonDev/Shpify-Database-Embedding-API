@@ -28,6 +28,9 @@ run-docker: ## Run the docker image
 stop-docker: # Stop and remove containers and networks
 	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml down
 
+run-celery: # Run celery workers
+	./entrypoint_celery.sh $(NUM_WORKERS)
+
 test: ## Run tox
 	tox
 

@@ -3,9 +3,9 @@ from typing import List
 import requests
 import shopify
 from awesoon.core.query import Query
-from awesoon.core.shopify.documents import Category, Policy, Product, ShopifyObject
+from awesoon.core.shopify.documents import Category, Policy, Product, ShopifyResource
 
-from awesoon.core.shopify.util import decode_html_policies, strip_tags
+from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid
 API_VERSION = "2023-01"
 
 SHP_FIELDS = [
@@ -35,13 +35,18 @@ class ShopifyQuery(Query):
         {
             shop {
                 shopPolicies {
+                    id
+                    type
                     body
+                    url
                 }
             }
         }"""
         policies_object = _make_gql_request(shop_url, token, query)
         policies_trimmed = policies_object["data"].get("shop", {}).get("shopPolicies")
         policies_decoded = decode_html_policies(policies_trimmed)
+        for policy in policies_decoded:
+            policy["id"] = get_id_from_gid(policy.get("id"))
         return _serialize_docs(policies_decoded, Policy)
 
     @classmethod
@@ -87,14 +92,14 @@ class ShopifyQuery(Query):
         }"""
 
         categories_object = _make_gql_request(shop_url, token, query)
-        categories_trimmed = categories_object["data"].get("shop", {}).get("allProductCategories")
-        categories = [
-            node.pop("productTaxonomyNode").pop("fullName", None) for node in categories_trimmed
-        ]
+        trimmed_categories = categories_object["data"].get("shop", {}).get("allProductCategories")
+        categories = [node.pop("productTaxonomyNode") for node in trimmed_categories]
+        for category in categories:
+            category["id"] = get_id_from_gid(category.get("id"))
         return _serialize_docs(categories, Category)
 
     @classmethod
-    def get_shop_orders(cls, shop_url, token) -> List[ShopifyObject]:
+    def get_shop_orders(cls, shop_url, token) -> List[ShopifyResource]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             orders = shopify.Order.find()
@@ -104,4 +109,4 @@ class ShopifyQuery(Query):
                 if not orders.has_next_page():
                     break
                 orders = orders.next_page()
-        return _serialize_docs(data, ShopifyObject)
+        return _serialize_docs(data, ShopifyResource)

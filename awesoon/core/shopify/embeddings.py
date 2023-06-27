@@ -3,51 +3,56 @@
 from abc import ABC
 from typing import List
 from langchain.embeddings import OpenAIEmbeddings
-from awesoon.core.models.doc import doc
+from awesoon.core.models.doc import Doc
 
-from awesoon.core.shopify.documents import ShopifyObject
-from langchain.text_splitter import TokenTextSplitter
+from awesoon.core.shopify.documents import ShopifyResource
 
 
 class ShopifyEmbedding(ABC):
-    def __init__(self, objects: List[ShopifyObject], version: str) -> None:
+    """ShopifyEmbedding
+
+    ? Creates/serves openai embeddings of documents ?
+
+    Args:
+        ABC (_type_): _description_
+    """    
+    def __init__(self, objects: List[ShopifyResource]) -> None:
         self.objects = objects
         self.openai = OpenAIEmbeddings()
-        self.embedding_version = version
 
-    def get_embedded_documents(self) -> List[doc]:
+    def get_embedded_documents(self) -> List[Doc]:
         docs = self.get_documents()
-        embeddings = self.openai.embed_documents(docs)
+        embeddings = self.openai.embed_documents([doc.get("document") for doc in docs])
+        # doc_embeddings = zip(docs, embeddings)
         return [
-            doc(document=docs[i], embedding=embeddings[i], docs_version=self.embedding_version) for i in range(len(docs))
+            Doc(document=doc["document"],
+                embedding=emb,
+                doc_type=doc["type"],
+                doc_identifier=doc["identifier"],
+                hash=doc["hash"]
+                ) for doc, emb in zip(docs, embeddings)
         ]
 
     def get_documents(self):
-        pass
-
-
-class ProductEmbedding(ShopifyEmbedding):
-
-    def get_documents(self):
-        for object in self.objects:
-            object.process_document()
-        return [object.processed() for object in self.objects]
-
-
-class CategoryEmbedding(ShopifyEmbedding):
-
-    def get_documents(self):
         docs = []
-        for category in self.objects:
-            docs.append(f"Here is a category of products that this store sells: {category.raw()}")
+        for object in self.objects:
+            for doc in object.processed():
+                docs.append({
+                        "document": doc,
+                        "type": object.type(),
+                        "identifier": object.identifier(),
+                        "hash": object.raw_hash()
+                    })
         return docs
 
 
-class PolicyEmbedding(ShopifyEmbedding):
+class ProductEmbedding(ShopifyEmbedding):
+    pass
 
-    def get_documents(self):
-        large_obj = ""
-        for obj in self.objects:
-            large_obj += obj.raw()
-        text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
-        return text_splitter.split_text(large_obj)
+
+class CategoryEmbedding(ShopifyEmbedding):
+    pass
+
+
+class PolicyEmbedding(ShopifyEmbedding):
+    pass

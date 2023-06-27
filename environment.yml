@@ -12,12 +12,14 @@ dependencies:
         - requests
         - pytest
         - python=3.9
+        - redis
         - werkzeug=2.1.2
         - langchain
         - openai
         - tiktoken
         - python-dotenv
         - pip:
+                - celery
                 - config-probe
                 - pytest-cov
                 - tox-conda
