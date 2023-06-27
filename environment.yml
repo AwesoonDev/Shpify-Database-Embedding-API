@@ -12,7 +12,6 @@ dependencies:
         - requests
         - pytest
         - python=3.9
-        - redis
         - werkzeug=2.1.2
         - langchain
         - openai
@@ -24,4 +23,5 @@ dependencies:
                 - pytest-cov
                 - tox-conda
                 - ShopifyAPI
+                - redis
                 - git+https://github.com/korbit-ai/python-config-probe.git
