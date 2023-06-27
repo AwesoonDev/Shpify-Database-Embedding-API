@@ -33,4 +33,3 @@ def create_app():
     app.register_blueprint(health_blueprint)
 
     return app
-
