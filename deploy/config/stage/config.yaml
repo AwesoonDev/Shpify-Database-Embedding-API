@@ -1,4 +1,4 @@
 database:
   host: "http://localhost"
 celery_broker:
-  broker: "redis://localhost"
+  host: "redis://localhost"
