@@ -1,2 +1,4 @@
 database:
   host: "http://34.125.95.96"
+celery_broker:
+  broker: "redis://34.125.95.96"
