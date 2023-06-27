@@ -12,7 +12,7 @@ class ShopifyResource(ABC):
     Stores/serves the shopify resource in a raw format (type: Any)
     Stores/serves identity and type (implemented by children)
     Process/serve resource => A processed resource is of (type: List[str])
-    Create/serve hash of resource ?
+    Create/serve hash of resource
     
     Args:
         ABC (_type_): _description_
@@ -60,11 +60,17 @@ class Policy(ShopifyResource):
         return DocType.POLICY.value
 
     def identify(self):
-        return DocType.POLICY.value
+        return self.raw().get("id")
 
     def process(self):
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
-        self._processed = text_splitter.split_text(self.raw())
+        split_text = text_splitter.split_text(self.raw().get("body"))
+        prepend = f"""Partial {self.raw().get("type").lower().replace("_", " ")}: """
+        postpend = f""" ---Full text url: {self.raw().get("url")}"""
+        processed_text = [
+            f"""{prepend}{text}{postpend}""" for text in split_text
+        ]
+        self._processed = processed_text
 
 
 class Product(ShopifyResource):
@@ -105,9 +111,9 @@ class Category(ShopifyResource):
         return DocType.CATEGORY.value
     
     def identify(self):
-        return self.raw()
+        return self.raw().get("id")
     
     def process(self):
-        category_raw = self.raw()
+        category_raw = self.raw().get("fullName")
         processed = f"Here is a category of products that this store sells: {category_raw}"
         self._processed = [processed]

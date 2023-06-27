@@ -5,11 +5,9 @@ from html.parser import HTMLParser
 
 
 def decode_html_policies(policies):
-    decoded_policies = []
     for policy in policies:
-        if policy["body"]:
-            decoded_policies.append(strip_tags(policy["body"]))
-    return decoded_policies
+        policy["body"] = strip_tags(policy.get("body"))
+    return policies
 
 
 class MLStripper(HTMLParser):
@@ -35,3 +33,9 @@ def strip_tags(html):
     s.feed(html)
     s.close()
     return re.sub('\n', '', s.get_data())
+
+def get_id_from_gid(uri):
+    match = re.search(r"/(\d+)$", uri)
+    if match:
+        return match.group(1)
+    return "-1"
