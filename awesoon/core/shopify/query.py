@@ -53,7 +53,7 @@ class ShopifyQuery(Query):
     def get_shop_products(cls, shop_url, token) -> List[Product]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
-            product_pages = shopify.Product.find()
+            product_pages = shopify.ProductListing.find()
             while True:
                 curr_page_data = [product_page.to_dict() for product_page in product_pages]
                 data.extend(curr_page_data)
