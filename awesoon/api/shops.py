@@ -29,3 +29,24 @@ class ShopCompute(Resource):
             return scan_id, 202
         except ShopInstallationNotFoundError:
             ns.abort(400, "Shop Installation Not Found")
+
+
+@ns.route("/<id>/compute-no-celery")
+class ShopComputeNonCelery(Resource):
+    @ns.expect(compute_parser)
+    def post(self, id):
+        try:
+            args = compute_parser.parse_args()
+            new_scan = Scan(
+                status=ScanStatus.PENDING,
+                trigger_type=TriggerType.MANUAL,
+                shop_id=int(id)
+            )
+            scan_id = initiate_scan(new_scan)
+            status = scan_shop(int(id), scan_id, args)
+            if status:
+                return scan_id, 200
+            else:
+                return "Could not compute", 400
+        except ShopInstallationNotFoundError:
+            ns.abort(400, "Shop Installation Not Found")
