@@ -4,6 +4,8 @@ from awesoon.core.docs import scan_shop, initiate_scan
 from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
 from flask_restx import Namespace, Resource, marshal
 
+from awesoon.core.scan import Scanner
+
 
 ns = Namespace(
     "shops", "This namespace is resposible for shop related data generation")
@@ -37,11 +39,13 @@ class ShopComputeNonCelery(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            new_scan = Scan(
-                status=ScanStatus.PENDING,
-                trigger_type=TriggerType.MANUAL,
-                shop_id=int(id)
-            )
+            # new_scan = Scan(
+            #     status=ScanStatus.PENDING,
+            #     trigger_type=TriggerType.MANUAL,
+            #     shop_id=int(id)
+            # )
+            scan = Scanner.create_scan(id)
+            Scanner.scan(scan)
             scan_id = initiate_scan(new_scan)
             status = scan_shop(int(id), scan_id, args)
             if status:

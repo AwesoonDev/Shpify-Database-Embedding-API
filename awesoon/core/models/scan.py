@@ -21,6 +21,8 @@ class Scan:
     status: ScanStatus
     trigger_type: TriggerType
     shop_id: int
+    scan_id: int = None
+    app_name: str = None
 
     def to_dict(self):
         return {

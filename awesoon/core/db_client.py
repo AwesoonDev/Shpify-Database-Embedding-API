@@ -5,6 +5,8 @@ from awesoon.core.models.doc import Doc
 from awesoon.core.models.scan import Scan, ScanStatus
 from copy import copy
 
+from awesoon.core.models.shop import Shop
+
 
 class DatabaseApiClient:
     def __init__(self):
@@ -27,10 +29,12 @@ class DatabaseApiClient:
         return self._make_request(requests.post, "scans", json=scan_data)
 
     def get_shop_docs(self, shop_id):
-        return self._make_request(requests.get, f"shops/{shop_id}/docs")
+        docs = self._make_request(requests.get, f"shops/{shop_id}/docs")
+        return [Doc(**doc) for doc in docs]
 
     def get_scan_docs(self, scan_id):
-        return self._make_request(requests.get, f"scans/{scan_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
+        docs = self._make_request(requests.get, f"scans/{scan_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
+        return [Doc(**doc) for doc in docs]
 
     def get_scan(self, scan_id):
         return self._make_request(requests.get, f"scans/{scan_id}", headers={'X-fields': '{id, shop_id}'})
@@ -39,19 +43,23 @@ class DatabaseApiClient:
         doc_data = copy(doc.__dict__)
         return self._make_request(requests.post, f"scans/{scan_id}/docs", json=doc_data)
 
-    def update_doc(self, doc_id, doc: Doc):
+    def update_doc(self, doc: Doc):
         doc_data = copy(doc.__dict__)
-        return self._make_request(requests.put, f"docs/{doc_id}", json=doc_data)
+        return self._make_request(requests.put, f"docs/{doc.id}", json=doc_data)
 
-    def update_scan(self, scan_id, scan_status: ScanStatus):
-        return self._make_request(requests.put, f"scans/{scan_id}/status", json={"status": scan_status.value})
+    def update_scan(self, scan: Scan, scan_status: ScanStatus):
+        return self._make_request(requests.put, f"scans/{scan.scan_id}/status", json={"status": scan_status.value})
 
     def remove_doc(self, doc_id):
         return self._make_request(requests.delete, f"docs/{doc_id}")
 
-    def get_shop_installation(self, shop_id, app_name):
+    def get_shop_installation(self, shop_id, app_name) -> Shop:
         installations = self._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"app_name": app_name})
         if installations:
-            return installations[0]
+            installation = installations[0]
+            return Shop(
+                shop_url=installation["shop_url"],
+                access_token=installation["access_token"]
+            )
         else:
             raise ShopInstallationNotFoundError
