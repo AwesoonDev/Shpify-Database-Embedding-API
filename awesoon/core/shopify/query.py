@@ -3,18 +3,10 @@ from typing import List
 import requests
 import shopify
 from awesoon.core.query import Query
-from awesoon.core.shopify.documents import Category, Policy, Product, ShopifyResource
+from awesoon.core.shopify.documents import Category, Policy, ShopifyResource
 
-from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid
+from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid, split_product
 API_VERSION = "2023-01"
-
-SHP_FIELDS = [
-    "id", "title", "product_type", "body_html", "variants", "handle", "status", "published_at", "tags", "vendor"
-]
-
-VARIANT_FIELDS = [
-    "id", "title", "grams", "inventory_quantity", "price",
-]
 
 
 def _make_gql_request(shop_url, token, query):
@@ -50,7 +42,7 @@ class ShopifyQuery(Query):
         return _serialize_docs(policies_decoded, Policy)
 
     @classmethod
-    def get_shop_products(cls, shop_url, token) -> List[Product]:
+    def get_shop_products(cls, shop_url, token) -> List[ShopifyResource]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             product_pages = shopify.Product.find()
@@ -60,21 +52,21 @@ class ShopifyQuery(Query):
                 if not product_pages.has_next_page():
                     break
                 product_pages = product_pages.next_page()
-        products = []
+        ProductDetails, ProductBodies, ProductVariants = [], [], []
         for product in data:
             if product.get("status") == "active" and product.get("published_at"):
-                product = {field: product.get(field) for field in SHP_FIELDS}
-                product["body_html"] = strip_tags(product.get("body_html"))
-                product["url"] = f"""{shop_url}/products/{product.pop("handle", None)}"""
-                variants = product.get("variants")
-                if variants:
-                    product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
-                    for variant in product["variants"]:
-                        variant["url"] = f"""{product.get("url")}?variant={variant.pop("id")}"""
-                products.append(product)
+                detail, body, variants = split_product(product, shop_url)
+                ProductDetails.append(detail)
+                ProductBodies.append(body)
+                ProductVariants.extend(variants)
             else:
                 pass
-        return _serialize_docs(products, Product)
+        Resources = []
+        Resources.extend(ProductDetails)
+        Resources.extend(ProductBodies)
+        Resources.extend(ProductVariants)
+        
+        return Resources
 
     @classmethod
     def get_shop_categories(cls, shop_url, token) -> List[Category]:
