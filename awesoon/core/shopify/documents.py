@@ -83,24 +83,31 @@ class Product(ShopifyResource):
     def process(self):
         product_raw = self.raw()
 
-        # Process the specification
-        processed_specs = f"""Product Title: {product_raw.get("title")}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. """
+        # Process the common product details
+        processed_details = f"""Product Title: {product_raw.get("title")}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. Description: {product_raw.get("body_html")}"""
+
+        # Process product variants
+        processed_variants = []
         for variant in product_raw.get("variants"):
-            processed_specs += f"""Variant name: {variant.get("title")}. Price: {variant.get("price", "unpriced")}. Inventory quantity: {variant.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant.get("grams", "Not tracked")}. Variant URL: {variant.get("url")}. """
-        processed_specs += f"""Additional search tags: {product_raw.get("tags")}"""
+            processed_variants.extend(f"""Variant name: {variant.get("title")}. Price: {variant.get("price", "unpriced")}. Inventory quantity: {variant.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant.get("grams", "Not tracked")}. Variant URL: {variant.get("url")}.""")
 
-        # Process the decription
-        processed_desc = f"""Description: {product_raw.get("body_html")}"""
+        # Process the specification
+        # processed_specs = f"""Product Title: {product_raw.get("title")}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. """
+        # for variant in product_raw.get("variants"):
+        #     processed_specs += f"""Variant name: {variant.get("title")}. Price: {variant.get("price", "unpriced")}. Inventory quantity: {variant.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant.get("grams", "Not tracked")}. Variant URL: {variant.get("url")}. """
+        # processed_specs += f"""Additional search tags: {product_raw.get("tags")}"""
 
+        # # Process the decription
+        # processed_desc = f"""Description: {product_raw.get("body_html")}"""
 
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
-        split_specs = text_splitter.split_text(processed_specs)
-        split_desc = text_splitter.split_text(processed_desc)
-        prepend_specs = f"""Partial {product_raw.get("title")} specifications: """
-        prepend_desc = f"""Partial {product_raw.get("title")} description: """
+        split_details = text_splitter.split_text(processed_details)
+        # split_desc = text_splitter.split_text(processed_desc)
+        prepend_details = f"""Partial {product_raw.get("title")} details: """
+        prepend_variants = f"""Variant of {product_raw.get("title")}: """
         processed_text = []
-        processed_text.extend([f"""{prepend_specs}{text}""" for text in split_specs])
-        processed_text.extend([f"""{prepend_desc}{text}""" for text in split_desc])
+        processed_text.extend([f"""{prepend_details}{text}""" for text in split_details])
+        processed_text.extend([f"""{prepend_variants}{text}""" for text in processed_variants])
         self._processed = processed_text
 
 
