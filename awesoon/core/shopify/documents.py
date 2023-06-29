@@ -72,50 +72,49 @@ class Policy(ShopifyResource):
         self._processed = processed_text
 
 
-class Product(ShopifyResource):
+class ProductBody(ShopifyResource):
 
     def typify(self):
-        return DocType.PRODUCT.value
-
+        return DocType.PRODUCT_BODY.value
+    
     def identify(self):
-        return self.raw().get("id")
+        return f"""{self.raw().get("id")}_{DocType.PRODUCT_BODY.value}"""
 
     def process(self):
         product_raw = self.raw()
-        product_title = product_raw.get("title")
-
-        # Process the common product details
-        processed_details = f"""Product Title: {product_title}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. Search tags: {product_raw.get("tags")}"""
-
-        # Process the product description
-        processed_desc = f"""Description: {product_raw.get("body_html")}"""
-
-        # Process product variants
-        processed_variants = []
-        for variant in product_raw.get("variants"):
-            processed_variants.append(f"""Variant of {product_title}. Name: {variant.get("title")}. Price: {variant.get("price", "unpriced")}. Inventory quantity: {variant.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant.get("grams", "Not tracked")}. URL: {variant.get("url")}.""")
-
-        # Process the specification
-        # processed_specs = f"""Product Title: {product_title}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. """
-        # for variant in product_raw.get("variants"):
-        #     processed_specs += f"""Variant name: {variant.get("title")}. Price: {variant.get("price", "unpriced")}. Inventory quantity: {variant.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant.get("grams", "Not tracked")}. Variant URL: {variant.get("url")}. """
-        # processed_specs += f"""Additional search tags: {product_raw.get("tags")}"""
-
-        # # Process the decription
-        # processed_desc = f"""desc: {product_raw.get("body_html")}"""
-
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
-        split_text = text_splitter.split_text(processed_desc)
-        prepend_text = f"""Partial {product_title} description: """
-        processed_text = []
-        # details is a single string
-        processed_text.append(processed_details)
-        # split_text is a list of strings
-        processed_text.extend([f"""{prepend_text}{text}""" for text in split_text])
-        # variants is a list of strings
-        processed_text.extend(processed_variants)
-        
-        self._processed = processed_text
+        split_body = text_splitter.split_text(product_raw.get("body"))
+        prepend_body = f"""Partial {product_raw.get("title")} description: """
+        processed_body = [f"""{prepend_body}{body_part}""" for body_part in split_body]
+        self._processed = processed_body
+
+
+class ProductDetail(ShopifyResource):
+
+    def typify(self):
+        return DocType.PRODUCT_DETAIL.value
+    
+    def identify(self):
+        return self.raw().get("id")
+    
+    def process(self):
+        product_raw = self.raw()
+        processed_details = f"""Product Title: {product_raw.get("title")}. Product Type: {product_raw.get("product_type", "Undefined")}. Product URL: {product_raw.get("url")}. Brand: {product_raw.get("vendor")}. Search tags: {product_raw.get("tags")}"""
+        self._processed = [processed_details]
+
+
+class ProductVariant(ShopifyResource):
+
+    def typify(self):
+        return DocType.PRODUCT_VARIANT.value
+
+    def identify(self):
+        return f"""{self.raw().get("product_id")}_{self.raw().get("id")}"""
+
+    def process(self):
+        variant_raw = self.raw()
+        processed_variant = f"""Variant of {variant_raw.get("product_title")}. Name: {variant_raw.get("title")}. Price: {variant_raw.get("price", "unpriced")}. Inventory quantity: {variant_raw.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant_raw.get("grams", "Not tracked")}. URL: {variant_raw.get("url")}."""
+        self._processed = processed_variant
 
 
 class Category(ShopifyResource):
