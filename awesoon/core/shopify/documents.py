@@ -75,10 +75,10 @@ class Policy(ShopifyResource):
 class ProductBody(ShopifyResource):
 
     def typify(self):
-        return DocType.PRODUCT_BODY.value
+        return DocType.POLICY.value
     
     def identify(self):
-        return f"""{self.raw().get("id")}_{DocType.PRODUCT_BODY.value}"""
+        return f"""{self.raw().get("id")}_{DocType.POLICY.value}"""
 
     def process(self):
         product_raw = self.raw()
