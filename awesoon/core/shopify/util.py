@@ -100,4 +100,3 @@ def split_product(product, shop_url):
             product_variants.append(product_variant)
 
     return product_details, product_body, product_variants
-

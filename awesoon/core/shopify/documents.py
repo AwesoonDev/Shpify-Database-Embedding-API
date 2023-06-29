@@ -92,7 +92,7 @@ class ProductBody(ShopifyResource):
 class ProductDetail(ShopifyResource):
 
     def typify(self):
-        return DocType.PRODUCT_DETAIL.value
+        return DocType.PRODUCT.value
     
     def identify(self):
         return self.raw().get("id")
@@ -106,7 +106,7 @@ class ProductDetail(ShopifyResource):
 class ProductVariant(ShopifyResource):
 
     def typify(self):
-        return DocType.PRODUCT_VARIANT.value
+        return DocType.PRODUCT.value
 
     def identify(self):
         return f"""{self.raw().get("product_id")}_{self.raw().get("id")}"""
@@ -114,7 +114,7 @@ class ProductVariant(ShopifyResource):
     def process(self):
         variant_raw = self.raw()
         processed_variant = f"""Variant of {variant_raw.get("product_title")}. Name: {variant_raw.get("title")}. Price: {variant_raw.get("price", "unpriced")}. Inventory quantity: {variant_raw.get("inventory_quantity", "Not tracked")}. Weight in grams: {variant_raw.get("grams", "Not tracked")}. URL: {variant_raw.get("url")}."""
-        self._processed = processed_variant
+        self._processed = [processed_variant]
 
 
 class Category(ShopifyResource):
