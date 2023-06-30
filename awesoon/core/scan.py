@@ -36,7 +36,7 @@ class Scanner:
                     filter
                 ).embed().execute(scan)
             filter.delete_docs().execute(scan)
-            # scan.commit()
+            scan.commit()
             db.update_scan_status(scan, ScanStatus.COMPLETED)
         except Exception as e:
             logging.exception("Scan error happened")
