@@ -44,3 +44,4 @@ class Scan:
                 db_client.add_doc(self.scan_id, doc)
             elif doc.storage_status == "DELETE":
                 db_client.remove_doc(doc.id)
+        self.docs = []

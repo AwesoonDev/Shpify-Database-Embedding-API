@@ -26,7 +26,7 @@ class DocStore:
 
     def setup_docs_store(self) -> dict[str, Resource]:
         docs_dict = self.get_docs_dict()
-        store: DefaultDict[str, Resource] = defaultdict(list)
+        store: DefaultDict[str, Resource] = defaultdict(Resource)
         for identifier, docs in docs_dict.items():
             try:
                 store[identifier].set_docs(docs)

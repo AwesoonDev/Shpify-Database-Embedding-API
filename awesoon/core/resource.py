@@ -49,11 +49,13 @@ class Resource(ResourceInterface):
             return Embedder.embed_resource(self)
         return self
 
-    def execute(self, scan: Scan):
+    def execute(self, scan: Scan, commit=False):
         if scan.docs is None:
             scan.docs = []
         for doc in self._docs:
             scan.docs.append(doc)
+        if commit:
+            scan.commit()
 
     def apply_filter(self, filter: FilterInterface) -> "Resource":
         return filter.filter(self)
