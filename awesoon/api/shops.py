@@ -1,9 +1,9 @@
-from awesoon.celery.tasks import manual_scan_request
-from awesoon.core.exceptions import ShopInstallationNotFoundError
-from awesoon.core.docs import scan_shop, initiate_scan
-from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
 from flask_restx import Namespace, Resource, marshal
 
+from awesoon.celery.tasks import manual_scan_request
+from awesoon.core.exceptions import ShopInstallationNotFoundError
+from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
+from awesoon.core.scan import Scanner
 
 ns = Namespace(
     "shops", "This namespace is resposible for shop related data generation")
@@ -19,14 +19,9 @@ class ShopCompute(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            new_scan = Scan(
-                status=ScanStatus.PENDING,
-                trigger_type=TriggerType.MANUAL,
-                shop_id=int(id)
-            )
-            scan_id = initiate_scan(new_scan)
-            manual_scan_request.delay(int(id), scan_id, args)
-            return scan_id, 202
+            scan: Scan = Scanner.create_scan(int(id))
+            manual_scan_request.delay(scan.id)
+            return scan.id, 202
         except ShopInstallationNotFoundError:
             ns.abort(400, "Shop Installation Not Found")
 
@@ -37,16 +32,8 @@ class ShopComputeNonCelery(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            new_scan = Scan(
-                status=ScanStatus.PENDING,
-                trigger_type=TriggerType.MANUAL,
-                shop_id=int(id)
-            )
-            scan_id = initiate_scan(new_scan)
-            status = scan_shop(int(id), scan_id, args)
-            if status:
-                return scan_id, 200
-            else:
-                return "Could not compute", 400
+            scan: Scan = Scanner.create_scan(int(id))
+            Scanner.scan(scan)
+            return scan.id, 200
         except ShopInstallationNotFoundError:
             ns.abort(400, "Shop Installation Not Found")

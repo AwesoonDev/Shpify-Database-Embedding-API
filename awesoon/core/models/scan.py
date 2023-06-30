@@ -1,6 +1,13 @@
 
-from dataclasses import dataclass
+from __future__ import annotations
+
 import enum
+from dataclasses import dataclass
+from typing import List
+
+from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.core.models.doc import Doc
+from awesoon.core.models.doc_type_enums import StorageStatus
 
 
 class ScanStatus(enum.Enum):
@@ -16,11 +23,15 @@ class TriggerType(enum.Enum):
     WEBHOOK = "WEBHOOK"
 
 
+
 @dataclass
 class Scan:
     status: ScanStatus
     trigger_type: TriggerType
     shop_id: int
+    id: int = None
+    app_name: str = None
+    docs: List[Doc] = None
 
     def to_dict(self):
         return {
@@ -28,3 +39,11 @@ class Scan:
             "trigger_type": self.trigger_type.value,
             "shop_id": self.shop_id
         }
+
+    def commit(self):
+        for doc in self.docs:
+            if doc.storage_status == StorageStatus.ADD:
+                DatabaseApiClient.add_doc(self.id, doc)
+            elif doc.storage_status == StorageStatus.DELETE:
+                DatabaseApiClient.remove_doc(doc.id)
+        self.docs = []

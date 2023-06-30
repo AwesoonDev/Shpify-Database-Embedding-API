@@ -2,6 +2,7 @@ name: shop-api
 channels:
         - conda-forge
 dependencies:
+        - backoff
         - flask-restx
         - flask
         - flask_cors

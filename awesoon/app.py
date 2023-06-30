@@ -2,12 +2,12 @@ import logging
 import os
 
 from flask import Blueprint, Flask
-from flask_restx import Api
 from flask_cors import CORS
+from flask_restx import Api
 
-from awesoon.api.shops import ns as shops_ns
-from awesoon.api.shopify import ns as shopify_ns
 from awesoon.api.health import ns as health_ns
+from awesoon.api.shopify import ns as shopify_ns
+from awesoon.api.shops import ns as shops_ns
 from awesoon.config import load
 
 config = load(os.environ.get('ENVIRONMENT', 'local'))
