@@ -1,11 +1,11 @@
 
 from typing import List
-from awesoon.core.models.doc import Doc
-from awesoon.core.models.resource import ResourceInterface
+
 from langchain.text_splitter import TokenTextSplitter
 
+from awesoon.core.models.doc import Doc
+from awesoon.core.models.resource import ResourceInterface
 from awesoon.core.shopify.util import strip_tags
-
 
 PRODUCT_VARIANT = """
     Variant of {product_title}.

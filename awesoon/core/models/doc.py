@@ -1,10 +1,8 @@
 
-from dataclasses import dataclass, asdict
-
+from dataclasses import asdict, dataclass
 from typing import List
 
 from awesoon.core.models.doc_type_enums import StorageStatus
-
 
 
 @dataclass

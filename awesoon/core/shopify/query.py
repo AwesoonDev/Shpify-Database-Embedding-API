@@ -1,10 +1,12 @@
 import json
 from typing import List
+
 import shopify
+
 from awesoon.core.query import Query
-from awesoon.core.shopify.resource import Category, Policy, Product
 from awesoon.core.resource import Resource
-from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid
+from awesoon.core.shopify.resource import Category, Policy, Product
+from awesoon.core.shopify.util import decode_html_policies, get_id_from_gid, strip_tags
 
 API_VERSION = "2023-01"
 

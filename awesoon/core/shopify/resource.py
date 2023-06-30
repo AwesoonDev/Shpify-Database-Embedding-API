@@ -1,12 +1,14 @@
 
 
+import logging
 from typing import List, Optional
+
+from langchain.text_splitter import TokenTextSplitter
+
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import DocType
-from langchain.text_splitter import TokenTextSplitter
 from awesoon.core.resource import Resource
 from awesoon.core.shopify.parsers import ProductParser
-import logging
 
 
 class Policy(Resource):

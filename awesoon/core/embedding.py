@@ -2,12 +2,13 @@
 
 from abc import ABC
 from typing import List
+
+import backoff
 import openai
 from openai.error import RateLimitError
+
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.resource import ResourceInterface
-import backoff
-
 
 EMBEDDING_MODEL = "text-embedding-ada-002"
 

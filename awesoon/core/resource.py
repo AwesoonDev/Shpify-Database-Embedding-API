@@ -1,10 +1,10 @@
 
 
-from abc import ABC
 import hashlib
 import json
+from abc import ABC
 from typing import List, Optional
-from awesoon.core.db_client import DatabaseApiClient
+
 from awesoon.core.embedding import Embedder
 from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
@@ -13,8 +13,6 @@ from awesoon.core.models.filter import FilterInterface
 from awesoon.core.models.resource import ResourceInterface, ResourcesInterface
 from awesoon.core.models.scan import Scan
 from awesoon.core.models.shop import Shop
-
-db_client = DatabaseApiClient()
 
 
 class Resource(ResourceInterface):

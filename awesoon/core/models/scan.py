@@ -1,9 +1,11 @@
 
-from dataclasses import dataclass
-import enum
-from typing import List
-from awesoon.core.db_client import DatabaseApiClient
+from __future__ import annotations
 
+import enum
+from dataclasses import dataclass
+from typing import List
+
+from awesoon.core.adapter.db_api_client import DatabaseApiClient
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import StorageStatus
 
@@ -22,15 +24,12 @@ class TriggerType(enum.Enum):
 
 
 
-db_client = DatabaseApiClient()
-
-
 @dataclass
 class Scan:
     status: ScanStatus
     trigger_type: TriggerType
     shop_id: int
-    scan_id: int = None
+    id: int = None
     app_name: str = None
     docs: List[Doc] = None
 
@@ -44,7 +43,7 @@ class Scan:
     def commit(self):
         for doc in self.docs:
             if doc.storage_status == StorageStatus.ADD:
-                db_client.add_doc(self.scan_id, doc)
+                DatabaseApiClient.add_doc(self.id, doc)
             elif doc.storage_status == StorageStatus.DELETE:
-                db_client.remove_doc(doc.id)
+                DatabaseApiClient.remove_doc(doc.id)
         self.docs = []

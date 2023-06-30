@@ -1,7 +1,7 @@
 import html
 import re
-from io import StringIO
 from html.parser import HTMLParser
+from io import StringIO
 
 
 def decode_html_policies(policies):
