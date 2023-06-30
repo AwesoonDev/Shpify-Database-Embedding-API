@@ -1,6 +1,6 @@
 *ngrok*
 *pyc*
-
+*dump.rdb*
 # environment variables
 .env
 *.DS_Store*

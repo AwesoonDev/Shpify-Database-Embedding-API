@@ -8,8 +8,9 @@ from typing import List
 from awesoon.core.adapter.db_api_client import DatabaseApiClient
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import StorageStatus
+import logging
 
-
+logger = logging
 class ScanStatus(enum.Enum):
     PENDING = "PENDING"
     IN_PROGRESS = "IN_PROGRESS"
@@ -43,7 +44,9 @@ class Scan:
     def commit(self):
         for doc in self.docs:
             if doc.storage_status == StorageStatus.ADD:
+                logging.info(f"Added doc {doc.doc_identifier}")
                 DatabaseApiClient.add_doc(self.id, doc)
             elif doc.storage_status == StorageStatus.DELETE:
+                logging.info(f"Removed doc {doc.id}")
                 DatabaseApiClient.remove_doc(doc.id)
         self.docs = []
