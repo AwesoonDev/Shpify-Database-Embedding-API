@@ -18,7 +18,7 @@ class DocStore:
         self._removable_docs = []
 
     def get_docs_dict(self) -> dict[str, List[Doc]]:
-        store: DefaultDict[str, Resource] = defaultdict(list)
+        store: DefaultDict[str, List[Doc]] = defaultdict(list)
         docs = db_client.get_shop_docs(self.shop_id)
         for doc in docs:
             self._docs_store[doc.doc_identifier].append(doc)
@@ -37,7 +37,10 @@ class DocStore:
     def contains(self, doc_identifier):
         return doc_identifier in self._docs_store
 
-    def get_removable_docs(self):
+    def get_removable_docs(self, include_unfiltered_docs=True):
+        if include_unfiltered_docs:
+            for _, resource in self._docs_store.items():
+                self._removable_docs.extend(resource.docs())
         return self._removable_docs
 
     def add_to_removable_docs(self, identifier):
@@ -65,8 +68,9 @@ class ResourceFilter:
 
     def delete_docs(self) -> Resource:
         docs = self._store.get_removable_docs()
-        for doc in docs:
-            doc.storage_status = "DELETE"
-        return Resource(
-            docs=docs
+        resource = Resource(
+            docs=docs,
+            enforce_hash=False
         )
+        resource.set_storage_status("DELETE")
+        return resource

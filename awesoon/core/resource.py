@@ -21,12 +21,14 @@ class Resource(ResourceInterface):
             self,
             raw=None,
             docs: Optional[List[Doc]] = None,
-            shop: Shop = None
+            shop: Shop = None,
+            enforce_hash: bool = True
     ) -> None:
         self._raw = raw
         self._hash = self.set_hash()
         self._docs: List[Doc] = docs
         self._shop: Shop = shop
+        self._enforce_hash: bool = enforce_hash
         if self._docs is None:
             self.set_docs([])
 
@@ -67,7 +69,7 @@ class Resource(ResourceInterface):
             self.add_doc(doc)
 
     def add_doc(self, doc: Doc):
-        if doc.hash != self._hash:
+        if self._enforce_hash and doc.hash != self._hash:
             raise ResourceDocsHashError
         self._docs.append(doc)
 
