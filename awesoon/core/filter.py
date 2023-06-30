@@ -37,7 +37,7 @@ class DocStore:
     def contains(self, doc_identifier):
         return doc_identifier in self._docs_store
 
-    def get_removable_docs(self, include_unfiltered_docs=True):
+    def get_removable_docs(self, include_unfiltered_docs=False):
         if include_unfiltered_docs:
             for _, resource in self._docs_store.items():
                 self._removable_docs.extend(resource.docs())
@@ -66,8 +66,8 @@ class ResourceFilter:
             resource.set_storage_status("POST")
         return resource
 
-    def delete_docs(self) -> Resource:
-        docs = self._store.get_removable_docs()
+    def delete_docs(self, include_unfiltered_docs=True) -> Resource:
+        docs = self._store.get_removable_docs(include_unfiltered_docs=include_unfiltered_docs)
         resource = Resource(
             docs=docs,
             enforce_hash=False
