@@ -48,10 +48,17 @@ class Resource(ResourceInterface):
             Embedder.embed_resource(self)
         return self
 
-    def execute(self, scan: Scan, commit=False):
+    def save(self, scan: Scan, commit=False):
+        self.execute(StorageStatus.ADD, scan, commit=commit)
+
+    def delete(self, scan: Scan, commit=False):
+        self.execute(StorageStatus.DELETE, scan, commit=commit)
+
+    def execute(self, action: StorageStatus, scan: Scan, commit=False):
         if scan.docs is None:
             scan.docs = []
         for doc in self._docs:
+            doc.storage_status = action
             scan.docs.append(doc)
         if commit:
             scan.commit()
@@ -119,15 +126,23 @@ class Resources(ResourcesInterface):
         return self
 
     def apply_filter(self, filter):
+        filtered_resources = []
         for resource in self.resources:
-            resource.apply_filter(filter)
+            filtered_resources.append(
+                resource.apply_filter(filter)
+            )
+        self.resources = filtered_resources
         return self
 
     def embed_all(self):
         if self.resources:
-            Embedder.embed_resources(self, self.resources)
+            Embedder.embed_resources(self.resources)
         return self
 
-    def execute(self, scan: Scan, commit=False):
+    def save_all(self, scan: Scan, commit=False):
         for resource in self.resources:
-            resource.execute(scan, commit=commit)
+            resource.save(scan, commit=commit)
+
+    def delete_all(self, scan: Scan, commit=False):
+        for resource in self.resources:
+            resource.delete(scan, commit=commit)

@@ -47,15 +47,14 @@ class DocStore:
         self._removable_docs.extend(resource.docs())
 
     def observe_resource_from_doc_store(self, resource: Resource):
-        identifier = resource.identifier()
         if resource.identifier() in self._docs_store:
             observed_resource: Resource = self._docs_store.pop(resource.identifier(), None)
             if observed_resource.get_hash() != resource.get_hash():
                 self.add_to_removable_docs(observed_resource)
-                return True
-            else:
                 return False
-        return True
+            else:
+                return True
+        return False
 
 
 class ResourceFilter:
@@ -64,15 +63,14 @@ class ResourceFilter:
         self._store = DocStore(shop_id=shop_id)
 
     def filter(self, resource: Resource) -> Resource:
-        if self._store.observe_resource_from_doc_store(resource):
-            resource.set_storage_status(StorageStatus.ADD)
-        return resource
+        if not self._store.observe_resource_from_doc_store(resource):
+            return resource
+        return Resource()
 
-    def delete_docs(self, include_unobserved_docs=True) -> Resource:
+    def removable_docs(self, include_unobserved_docs=True) -> Resource:
         docs = self._store.get_removable_docs(include_unobserved_docs=include_unobserved_docs)
         resource = Resource(
             docs=docs,
             enforce_hash=False
         )
-        resource.set_storage_status(StorageStatus.DELETE)
         return resource

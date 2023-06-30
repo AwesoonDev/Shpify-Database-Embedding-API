@@ -32,8 +32,8 @@ class Scanner:
             resources = Resources(shop_resources)
             resources.parse_all().apply_filter(
                 filter
-            ).embed_all().execute(scan=scan)
-            filter.delete_docs().execute(scan=scan)
+            ).embed_all().save_all(scan=scan)
+            filter.removable_docs().delete(scan=scan)
             scan.commit()
             DatabaseScanClient.update_scan_status(scan, ScanStatus.COMPLETED)
         except Exception as e:

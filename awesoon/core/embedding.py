@@ -9,6 +9,7 @@ from openai.error import RateLimitError
 
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.resource import ResourceInterface
+from langchain.embeddings import OpenAIEmbeddings
 
 EMBEDDING_MODEL = "text-embedding-ada-002"
 
@@ -34,11 +35,11 @@ class Embedder(ABC):
             doc.embedding = emb["embedding"]
         return resource
 
-    def embed_resources(self, resources: List[ResourceInterface]) -> List[ResourceInterface]:
+    @classmethod
+    def embed_resources(cls, resources: List[ResourceInterface]) -> List[ResourceInterface]:
+        openai = OpenAIEmbeddings()
         docs: List[Doc] = [doc for resource in resources for doc in resource.docs()]
-        embeddings = openai.Embedding.create(
-            input=[doc.document for doc in docs], model=EMBEDDING_MODEL
-        )["data"]
+        embeddings = openai.embed_documents([doc.document for doc in docs])
         for doc, emb in zip(docs, embeddings):
-            doc.embedding = emb["embedding"]
+            doc.embedding = emb
         return resources
