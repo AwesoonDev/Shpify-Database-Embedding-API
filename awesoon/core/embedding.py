@@ -1,13 +1,12 @@
 
 
-
 from abc import ABC
 from typing import List
 import openai
 from awesoon.core.models.doc import Doc
-from awesoon.core.resource import Resource
+from awesoon.core.models.resource import ResourceInterface
 
-EMBEDDING_MODEL = "text-davinci-002"
+EMBEDDING_MODEL = "text-embedding-ada-002"
 
 
 class Embedder(ABC):
@@ -21,12 +20,12 @@ class Embedder(ABC):
     """
 
     @classmethod
-    def embed_resource(self, resource: Resource) -> Resource:
+    def embed_resource(self, resource: ResourceInterface) -> ResourceInterface:
         docs: List[Doc] = resource.docs()
         embeddings = openai.Embedding.create(
             input=[doc.document for doc in docs], model=EMBEDDING_MODEL
-        )
+        )["data"]
         for doc, emb in zip(docs, embeddings):
-            doc.embedding = emb
+            doc.embedding = emb["embedding"]
         resource.set_docs(docs)
         return resource

@@ -10,11 +10,11 @@ class Doc:
     doc_type: str = None
     doc_identifier: str = None
     hash: str = None
-    embedding: List[float] = []
+    embedding: List[float] = None
     storage_status: str = None
     id: str = None
 
-    meta_keys = ["storage_status"]
+    meta_keys = ["storage_status", "id"]
 
     def to_dict(self):
         return {k: v for k, v in asdict(self).items() if k != self.meta_keys}

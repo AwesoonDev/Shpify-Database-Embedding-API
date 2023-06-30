@@ -3,26 +3,38 @@
 from abc import ABC
 import hashlib
 import json
-from typing import List
+from typing import List, Optional
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core.embedding import Embedder
-from awesoon.core.filter import ResourceFilter
 from awesoon.core.models.doc import Doc
+from awesoon.core.models.filter import FilterInterface
+from awesoon.core.models.resource import ResourceInterface
+from awesoon.core.models.scan import Scan
 from awesoon.core.models.shop import Shop
 
 db_client = DatabaseApiClient()
 
 
-class Resource(ABC):
-    def __init__(self, raw, docs=None) -> None:
+class Resource(ResourceInterface):
+    def __init__(
+            self,
+            raw=None,
+            docs: Optional[List[Doc]] = None,
+            shop: Shop = None
+    ) -> None:
         self._raw = raw
         self._hash = self.set_hash()
         self._docs: List[Doc] = docs
-        self._shop: Shop = None
+        self._shop: Shop = shop
+        if self._docs is None:
+            self.set_docs([])
 
-    def parse(self: "Resource") -> "Resource":
+    def parse(self) -> "Resource":
         self._docs = [
-            Doc(document=self._raw, hash=self.get_hash())
+            Doc(
+                document=json.dumps(self._raw),
+                hash=self.get_hash()
+            )
         ]
         return self
 
@@ -31,18 +43,13 @@ class Resource(ABC):
             return Embedder.embed_resource(self)
         return self
 
-    def store(self, scan_id: str):
+    def execute(self, scan: Scan):
+        if scan.docs is None:
+            scan.docs = []
         for doc in self._docs:
-            if doc.storage_status == "POST":
-                db_client.add_doc(scan_id, doc)
-            if doc.storage_status == "PUT":
-                db_client.update_doc(doc)
+            scan.docs.append(doc)
 
-    def delete(self):
-        for doc in self._docs:
-            db_client.remove_doc(doc.id)
-
-    def apply_filter(self, filter: ResourceFilter) -> "Resource":
+    def apply_filter(self, filter: FilterInterface) -> "Resource":
         return filter.filter(self)
 
     def raw(self):

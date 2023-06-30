@@ -2,7 +2,6 @@ import html
 import re
 from io import StringIO
 from html.parser import HTMLParser
-from awesoon.core.shopify.resource import ProductBody, ProductDetail, ProductVariant
 
 
 def decode_html_policies(policies):
@@ -41,5 +40,4 @@ def get_id_from_gid(uri):
     if match:
         return match.group(1)
     return "-1"
-
 

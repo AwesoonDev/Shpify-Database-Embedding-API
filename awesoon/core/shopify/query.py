@@ -2,9 +2,9 @@ import json
 from typing import List
 import shopify
 from awesoon.core.query import Query
-from awesoon.core.shopify.resource import Category, Policy, Product, ShopifyResource
-
-from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid, split_product
+from awesoon.core.shopify.resource import Category, Policy, Product
+from awesoon.core.resource import Resource
+from awesoon.core.shopify.util import decode_html_policies, strip_tags, get_id_from_gid
 
 API_VERSION = "2023-01"
 
@@ -50,7 +50,7 @@ class ShopifyQuery(Query):
         return _serialize_docs(policies_decoded, Policy)
 
     @classmethod
-    def get_shop_products(cls, shop_url, token) -> List[ShopifyResource]:
+    def get_shop_products(cls, shop_url, token) -> List[Product]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             product_pages = shopify.Product.find()
@@ -99,7 +99,7 @@ class ShopifyQuery(Query):
         return _serialize_docs(categories, Category)
 
     @classmethod
-    def get_shop_orders(cls, shop_url, token) -> List[ShopifyResource]:
+    def get_shop_orders(cls, shop_url, token) -> List[Resource]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             orders = shopify.Order.find()
@@ -109,4 +109,4 @@ class ShopifyQuery(Query):
                 if not orders.has_next_page():
                     break
                 orders = orders.next_page()
-        return _serialize_docs(data, ShopifyResource)
+        return _serialize_docs(data, Resource)

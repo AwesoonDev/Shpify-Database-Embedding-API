@@ -6,7 +6,7 @@ from awesoon.core.models.doc_type_enums import DocType
 from langchain.text_splitter import TokenTextSplitter
 from awesoon.core.resource import Resource
 from awesoon.core.shopify.parsers import ProductParser
-
+import logging
 
 class Policy(Resource):
 
@@ -31,13 +31,21 @@ class Policy(Resource):
 class Product(Resource):
     def __init__(self, raw, docs: Optional[List[Doc]] = None) -> None:
         super().__init__(raw, docs)
-        self.parser = ProductParser(self)
+        self._parser = None
 
     def parse(self) -> "Product":
-        self.parser.parse()
-        for doc in self._docs:
-            doc.hash = self.get_hash()
+        self.enable_product_parser_v1()
+        if self._parser:
+            self._parser.parse()
+            for doc in self._docs:
+                doc.hash = self.get_hash()
+        else:
+            logging.critical("No parser was detected")
+            super().parse()
         return self
+
+    def enable_product_parser_v1(self):
+        self._parser = ProductParser(self)
 
 
 class Category(Resource):
