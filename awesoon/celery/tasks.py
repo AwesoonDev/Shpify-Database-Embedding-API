@@ -1,9 +1,9 @@
 from celery import Celery
-from regex import Scanner
 
 from awesoon.config import config
 from awesoon.core.adapter.db_scan_client import DatabaseScanClient
 from awesoon.core.models.scan import Scan
+from awesoon.core.scan import Scanner
 
 # configure celery app with Redis as the message broker
 app = Celery("scan_tasks",

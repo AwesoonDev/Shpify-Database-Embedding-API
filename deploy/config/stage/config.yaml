@@ -1,5 +1,3 @@
 database:
   host: "http://localhost"
-celery_broker:
-  host: "redis://localhost"
   
