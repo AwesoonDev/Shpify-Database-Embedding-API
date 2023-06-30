@@ -40,11 +40,11 @@ class DatabaseApiClient:
         return self._make_request(requests.get, f"scans/{scan_id}", headers={'X-fields': '{id, shop_id}'})
 
     def add_doc(self, scan_id, doc: Doc):
-        doc_data = copy(doc.__dict__)
+        doc_data = doc.to_dict()
         return self._make_request(requests.post, f"scans/{scan_id}/docs", json=doc_data)
 
     def update_doc(self, doc: Doc):
-        doc_data = copy(doc.__dict__)
+        doc_data = doc.to_dict()
         return self._make_request(requests.put, f"docs/{doc.id}", json=doc_data)
 
     def update_scan_status(self, scan, scan_status):

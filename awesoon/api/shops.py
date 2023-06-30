@@ -38,8 +38,8 @@ class ShopComputeNonCelery(Resource):
     def post(self, id):
         try:
             args = compute_parser.parse_args()
-            scan = Scanner.create_scan(int(id))
+            scan: Scan = Scanner.create_scan(int(id))
             Scanner.scan(scan)
-            return scan.id, 200
+            return scan.scan_id, 200
         except ShopInstallationNotFoundError:
             ns.abort(400, "Shop Installation Not Found")

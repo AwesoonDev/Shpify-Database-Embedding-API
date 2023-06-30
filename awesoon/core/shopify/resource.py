@@ -12,7 +12,7 @@ import logging
 class Policy(Resource):
 
     def identifier(self):
-        return self.raw().get("id")
+        return str(self.raw().get("id"))
 
     def parse(self) -> "Policy":
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
@@ -38,7 +38,7 @@ class Product(Resource):
         self._parser = None
 
     def identifier(self):
-        return self.raw().get("id")
+        return str(self.raw().get("id"))
 
     def parse(self) -> "Product":
         self.enable_product_parser_v1()
@@ -58,7 +58,7 @@ class Product(Resource):
 class Category(Resource):
 
     def identifier(self):
-        return self.raw().get("id")
+        return str(self.raw().get("id"))
 
     def parse(self):
         category_raw = self.raw().get("fullName")

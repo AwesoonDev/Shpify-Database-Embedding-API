@@ -8,4 +8,3 @@ class Shop:
     shop_id: int = None
     app_name: str = None
     platform: str = "shopify"
-

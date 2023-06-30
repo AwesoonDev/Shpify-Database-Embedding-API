@@ -8,8 +8,9 @@ from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core.embedding import Embedder
 from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
+from awesoon.core.models.doc_type_enums import StorageStatus
 from awesoon.core.models.filter import FilterInterface
-from awesoon.core.models.resource import ResourceInterface
+from awesoon.core.models.resource import ResourceInterface, ResourcesInterface
 from awesoon.core.models.scan import Scan
 from awesoon.core.models.shop import Shop
 
@@ -25,7 +26,7 @@ class Resource(ResourceInterface):
             enforce_hash: bool = True
     ) -> None:
         self._raw = raw
-        self._hash = self.set_hash()
+        self.set_hash()
         self._docs: List[Doc] = docs
         self._shop: Shop = shop
         self._enforce_hash: bool = enforce_hash
@@ -46,7 +47,7 @@ class Resource(ResourceInterface):
 
     def embed(self: "Resource") -> "Resource":
         if self._docs:
-            return Embedder.embed_resource(self)
+            Embedder.embed_resource(self)
         return self
 
     def execute(self, scan: Scan, commit=False):
@@ -67,22 +68,34 @@ class Resource(ResourceInterface):
         return self._docs
 
     def set_docs(self, docs: List[Doc]):
-        for doc in docs:
-            self.add_doc(doc)
+        if docs:
+            for doc in docs:
+                self.add_doc(doc)
+        else:
+            self._docs = []
 
     def add_doc(self, doc: Doc):
-        if self._enforce_hash and doc.hash != self._hash:
-            raise ResourceDocsHashError
+        if self._enforce_hash:
+            if self.get_hash() and doc.hash != self._hash:
+                raise ResourceDocsHashError
+            else:
+                self.override_hash(doc.hash)
         self._docs.append(doc)
 
     def get_hash(self):
         return self._hash
 
     def set_hash(self):
-        to_hash = json.dumps(self._raw)
-        hasher = hashlib.sha256()
-        hasher.update(to_hash.encode())
-        return hasher.hexdigest()
+        if self.raw():
+            to_hash = json.dumps(self._raw)
+            hasher = hashlib.sha256()
+            hasher.update(to_hash.encode())
+            self._hash = hasher.hexdigest()
+        else:
+            self._hash = None
+
+    def override_hash(self, hash):
+        self._hash = hash
 
     def get_shop(self):
         return self._shop
@@ -90,6 +103,33 @@ class Resource(ResourceInterface):
     def set_shop(self, shop):
         self._shop = shop
 
-    def set_storage_status(self, status: str):
+    def set_storage_status(self, status: StorageStatus):
         for doc in self._docs:
             doc.storage_status = status
+
+
+class Resources(ResourcesInterface):
+    def __init__(
+            self,
+            resources: List[Resource] = None
+    ) -> None:
+        self.resources = resources or []
+
+    def parse_all(self):
+        for resource in self.resources:
+            resource.parse()
+        return self
+
+    def apply_filter(self, filter):
+        for resource in self.resources:
+            resource.apply_filter(filter)
+        return self
+
+    def embed_all(self):
+        if self.resources:
+            Embedder.embed_resources(self, self.resources)
+        return self
+
+    def execute(self, scan: Scan, commit=False):
+        for resource in self.resources:
+            resource.execute(scan, commit=commit)
