@@ -5,3 +5,7 @@ class ShopInstallationNotFoundError(Exception):
 
 class ScanError(Exception):
     pass
+
+
+class ResourceDocsHashError(Exception):
+    pass

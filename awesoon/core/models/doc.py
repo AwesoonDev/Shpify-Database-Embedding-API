@@ -11,7 +11,7 @@ class Doc:
     doc_identifier: str = None
     hash: str = None
     embedding: List[float] = None
-    storage_status: str = None
+    storage_status: str = "IGNORE"
     id: str = None
 
     meta_keys = ["storage_status", "id"]

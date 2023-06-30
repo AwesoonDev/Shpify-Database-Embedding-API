@@ -6,6 +6,7 @@ import json
 from typing import List, Optional
 from awesoon.core.db_client import DatabaseApiClient
 from awesoon.core.embedding import Embedder
+from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.filter import FilterInterface
 from awesoon.core.models.resource import ResourceInterface
@@ -28,6 +29,9 @@ class Resource(ResourceInterface):
         self._shop: Shop = shop
         if self._docs is None:
             self.set_docs([])
+
+    def identifier(self):
+        return None
 
     def parse(self) -> "Resource":
         self._docs = [
@@ -59,7 +63,13 @@ class Resource(ResourceInterface):
         return self._docs
 
     def set_docs(self, docs: List[Doc]):
-        self._docs = docs
+        for doc in docs:
+            self.add_doc(doc)
+
+    def add_doc(self, doc: Doc):
+        if doc.hash != self._hash:
+            raise ResourceDocsHashError
+        self._docs.append(doc)
 
     def get_hash(self):
         return self._hash
@@ -75,3 +85,7 @@ class Resource(ResourceInterface):
 
     def set_shop(self, shop):
         self._shop = shop
+
+    def set_storage_status(self, status: str):
+        for doc in self._docs:
+            doc.storage_status = status

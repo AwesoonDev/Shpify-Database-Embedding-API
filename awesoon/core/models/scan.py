@@ -42,7 +42,5 @@ class Scan:
         for doc in self.docs:
             if doc.storage_status == "POST":
                 db_client.add_doc(self.scan_id, doc)
-            elif doc.storage_status == "PUT":
-                db_client.update_doc(doc)
             elif doc.storage_status == "DELETE":
                 db_client.remove_doc(doc.id)

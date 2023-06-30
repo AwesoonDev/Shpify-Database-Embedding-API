@@ -8,7 +8,11 @@ from awesoon.core.resource import Resource
 from awesoon.core.shopify.parsers import ProductParser
 import logging
 
+
 class Policy(Resource):
+
+    def identifier(self):
+        return self.raw().get("id")
 
     def parse(self) -> "Policy":
         text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
@@ -21,7 +25,7 @@ class Policy(Resource):
             Doc(
                 document=text,
                 hash=self.get_hash(),
-                doc_identifier=self.raw().get("id")
+                doc_identifier=self.identifier()
             )
             for text in processed_text
         ]
@@ -32,6 +36,9 @@ class Product(Resource):
     def __init__(self, raw, docs: Optional[List[Doc]] = None) -> None:
         super().__init__(raw, docs)
         self._parser = None
+
+    def identifier(self):
+        return self.raw().get("id")
 
     def parse(self) -> "Product":
         self.enable_product_parser_v1()
@@ -50,6 +57,9 @@ class Product(Resource):
 
 class Category(Resource):
 
+    def identifier(self):
+        return self.raw().get("id")
+
     def parse(self):
         category_raw = self.raw().get("fullName")
         text = f" Here is a category of products that this store sells: {category_raw}. "
@@ -57,7 +67,7 @@ class Category(Resource):
             Doc(
                 document=text,
                 hash=self.get_hash(),
-                doc_identifier=self.raw().get("id")
+                doc_identifier=self.identifier()
             )
         ]
         return self

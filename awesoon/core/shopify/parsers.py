@@ -79,7 +79,7 @@ class ProductParser:
         result.append(
             Doc(
                 document=get_product_details_string(product, product_url),
-                doc_identifier=f"""{product.get("id")}"""
+                doc_identifier=self.resource.identifier()
             )
         )
         return result
@@ -93,7 +93,7 @@ class ProductParser:
             result.append(
                 Doc(
                     document=document_text,
-                    doc_identifier=f"""{product.get("id")}_{variant.get("id")}"""
+                    doc_identifier=self.resource.identifier()
                 )
             )
         return result
@@ -107,7 +107,7 @@ class ProductParser:
             result.append(
                 Doc(
                     document=get_product_body_string(product, body),
-                    doc_identifier=f"""{product.get("id")}_product_body"""
+                    doc_identifier=self.resource.identifier()
                 )
             )
         return result

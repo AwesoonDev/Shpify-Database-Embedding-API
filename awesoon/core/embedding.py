@@ -27,5 +27,4 @@ class Embedder(ABC):
         )["data"]
         for doc, emb in zip(docs, embeddings):
             doc.embedding = emb["embedding"]
-        resource.set_docs(docs)
         return resource
