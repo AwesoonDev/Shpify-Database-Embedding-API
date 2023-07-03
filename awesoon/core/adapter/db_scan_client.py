@@ -23,7 +23,7 @@ class DatabaseScanClient(DatabaseClient):
     @classmethod
     def get_scan(self, scan_id) -> Scan:
         scan_data = self._make_request(requests.get, f"scans/{scan_id}")
-        return Scan(**scan_data)
+        return Scan(**{f: scan_data.get(f) for f in Scan.__annotations__})
 
     @classmethod
     def update_scan_status(cls, scan: Scan, scan_status: ScanStatus):
