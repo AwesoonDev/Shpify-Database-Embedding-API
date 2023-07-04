@@ -1,10 +1,10 @@
 
-from pydoc import Doc
 from typing import List
 
 import requests
 
-from awesoon.core.adapter.db_client import DatabaseClient
+from awesoon.adapter.db_client import DatabaseClient
+from awesoon.core.models.doc import Doc
 from awesoon.core.models.scan import Scan, ScanStatus
 
 
@@ -18,12 +18,12 @@ class DatabaseScanClient(DatabaseClient):
     @classmethod
     def get_scan_docs(cls, scan_id) -> List[Doc]:
         docs = cls._make_request(requests.get, f"scans/{scan_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
-        return [Doc(**doc) for doc in docs]
+        return [Doc.from_dict(doc) for doc in docs]
 
     @classmethod
     def get_scan(self, scan_id) -> Scan:
         scan_data = self._make_request(requests.get, f"scans/{scan_id}")
-        return Scan(**scan_data)
+        return Scan.from_dict(scan_data)
 
     @classmethod
     def update_scan_status(cls, scan: Scan, scan_status: ScanStatus):

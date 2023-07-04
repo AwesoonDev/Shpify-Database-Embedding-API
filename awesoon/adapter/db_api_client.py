@@ -17,7 +17,7 @@ class DatabaseApiClient(DatabaseClient):
     @classmethod
     def get_shop_docs(cls, shop_id) -> List[Doc]:
         docs = cls._make_request(requests.get, f"shops/{shop_id}/docs")
-        return [Doc(**doc) for doc in docs]
+        return [Doc.from_dict(doc) for doc in docs]
 
     @classmethod
     def add_doc(cls, scan_id, doc: Doc):
@@ -38,9 +38,6 @@ class DatabaseApiClient(DatabaseClient):
         installations = cls._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"app_name": app_name})
         if installations:
             installation = installations[0]
-            return Shop(
-                shop_url=installation["shop_url"],
-                access_token=installation["access_token"]
-            )
+            return Shop.from_dict(installation)
         else:
             raise ShopInstallationNotFoundError

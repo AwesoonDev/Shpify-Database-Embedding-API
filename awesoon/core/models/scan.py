@@ -5,12 +5,15 @@ import enum
 from dataclasses import dataclass
 from typing import List
 
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db_api_client import DatabaseApiClient
+from awesoon.core.models import BaseDataClass
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import StorageStatus
 import logging
 
 logger = logging
+
+
 class ScanStatus(enum.Enum):
     PENDING = "PENDING"
     IN_PROGRESS = "IN_PROGRESS"
@@ -24,9 +27,8 @@ class TriggerType(enum.Enum):
     WEBHOOK = "WEBHOOK"
 
 
-
 @dataclass
-class Scan:
+class Scan(BaseDataClass):
     status: ScanStatus
     trigger_type: TriggerType
     shop_id: int

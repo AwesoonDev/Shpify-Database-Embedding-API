@@ -2,7 +2,7 @@
 from flask_restx import Namespace, Resource
 
 from awesoon.api.utils import add_pagination_params
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db_api_client import DatabaseApiClient
 from awesoon.core.shop import (
     get_shop_categories,
     get_shop_orders,

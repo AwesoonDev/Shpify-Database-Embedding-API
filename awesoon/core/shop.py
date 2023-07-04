@@ -3,7 +3,7 @@ from typing import List
 from dotenv import load_dotenv
 
 from awesoon.core import query_platforms
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db_api_client import DatabaseApiClient
 from awesoon.core.models.shop import Shop
 from awesoon.core.resource import Resource
 

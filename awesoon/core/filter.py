@@ -3,7 +3,7 @@
 from collections import defaultdict
 from typing import DefaultDict, List
 
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db_api_client import DatabaseApiClient
 from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import StorageStatus

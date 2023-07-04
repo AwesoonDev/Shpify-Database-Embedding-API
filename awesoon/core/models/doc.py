@@ -1,12 +1,12 @@
 
 from dataclasses import asdict, dataclass
 from typing import List
-
+from awesoon.core.models import BaseDataClass
 from awesoon.core.models.doc_type_enums import StorageStatus
 
 
 @dataclass
-class Doc:
+class Doc(BaseDataClass):
     document: str
     doc_type: str = None
     doc_identifier: str = None
