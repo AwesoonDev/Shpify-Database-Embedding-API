@@ -3,7 +3,7 @@ from typing import List
 
 import requests
 
-from awesoon.adapter.db_client import DatabaseClient
+from awesoon.adapter.db.client import DatabaseClient
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.scan import Scan, ScanStatus
 

@@ -3,7 +3,7 @@ from typing import List
 from dotenv import load_dotenv
 
 from awesoon.core import query_platforms
-from awesoon.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db.shop_client import DatabaseShopClient
 from awesoon.core.models.shop import Shop
 from awesoon.core.resource import Resource
 
@@ -29,7 +29,7 @@ def get_shop_orders(shop):
 
 
 def get_shop_resources(shop_id: int, app_name: str) -> list[Resource]:
-    shop: Shop = DatabaseApiClient.get_shop_installation(shop_id, app_name)
+    shop: Shop = DatabaseShopClient.get_shop_installation(shop_id, app_name)
     shop_resources: List[Resource] = []
     for query in query_platforms[shop.platform]["queries"]:
         shop_resources.extend(query(shop.shop_url, shop.access_token))

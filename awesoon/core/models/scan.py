@@ -5,7 +5,7 @@ import enum
 from dataclasses import dataclass
 from typing import List
 
-from awesoon.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db.api_client import DatabaseApiClient
 from awesoon.core.models import BaseDataClass
 from awesoon.core.models.doc import Doc
 from awesoon.core.models.doc_type_enums import StorageStatus
