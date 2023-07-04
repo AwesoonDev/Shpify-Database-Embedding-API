@@ -1,7 +1,7 @@
 from celery import Celery
 
 from awesoon.config import config
-from awesoon.core.adapter.db_scan_client import DatabaseScanClient
+from awesoon.adapter.db.scan_client import DatabaseScanClient
 from awesoon.core.models.scan import Scan
 from awesoon.core.scan import Scanner
 

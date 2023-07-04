@@ -2,7 +2,7 @@
 import logging
 from typing import List
 
-from awesoon.core.adapter.db_scan_client import DatabaseScanClient
+from awesoon.adapter.db.scan_client import DatabaseScanClient
 from awesoon.core.exceptions import ScanError
 from awesoon.core.filter import ResourceFilter
 from awesoon.core.models.scan import Scan, ScanStatus, TriggerType

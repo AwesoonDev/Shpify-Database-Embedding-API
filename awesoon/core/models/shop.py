@@ -1,8 +1,9 @@
 from dataclasses import dataclass
+from awesoon.core.models import BaseDataClass
 
 
 @dataclass
-class Shop:
+class Shop(BaseDataClass):
     shop_url: str
     access_token: str
     shop_id: int = None

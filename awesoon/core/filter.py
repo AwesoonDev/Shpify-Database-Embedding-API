@@ -3,10 +3,9 @@
 from collections import defaultdict
 from typing import DefaultDict, List
 
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db.shop_client import DatabaseShopClient
 from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
-from awesoon.core.models.doc_type_enums import StorageStatus
 from awesoon.core.resource import Resource
 
 
@@ -18,7 +17,7 @@ class DocStore:
 
     def get_docs_dict(self) -> dict[str, List[Doc]]:
         store: DefaultDict[str, List[Doc]] = defaultdict(list)
-        docs = DatabaseApiClient.get_shop_docs(self.shop_id)
+        docs = DatabaseShopClient.get_shop_docs(self.shop_id)
         for doc in docs:
             store[doc.doc_identifier].append(doc)
         return dict(store)

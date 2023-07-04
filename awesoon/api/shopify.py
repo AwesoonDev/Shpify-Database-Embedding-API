@@ -2,7 +2,7 @@
 from flask_restx import Namespace, Resource
 
 from awesoon.api.utils import add_pagination_params
-from awesoon.core.adapter.db_api_client import DatabaseApiClient
+from awesoon.adapter.db.shop_client import DatabaseShopClient
 from awesoon.core.shop import (
     get_shop_categories,
     get_shop_orders,
@@ -32,7 +32,7 @@ class ShopGetPolicies(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        shop = DatabaseApiClient.get_shop_installation(id, app_name=args["app_name"])
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
         policies = get_shop_policies(shop)
         policies = paginate_resources(policies, args)
         result = {
@@ -46,7 +46,7 @@ class ShopGetProducts(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        shop = DatabaseApiClient.get_shop_installation(id, app_name=args["app_name"])
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
         products = get_shop_products(shop)
         products = paginate_resources(products, args)
         result = {
@@ -60,7 +60,7 @@ class ShopGetCategories(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        shop = DatabaseApiClient.get_shop_installation(id, app_name=args["app_name"])
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
         categories = get_shop_categories(shop)
         categories = paginate_resources(categories, args)
         result = {
@@ -74,7 +74,7 @@ class ShopOrders(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
-        shop = DatabaseApiClient.get_shop_installation(id, app_name=args["app_name"])
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
         orders = get_shop_orders(shop)
         orders = paginate_resources(orders, args)
         result = {
