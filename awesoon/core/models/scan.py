@@ -44,11 +44,21 @@ class Scan(BaseDataClass):
         }
 
     def commit(self):
-        for doc in self.docs:
-            if doc.storage_status == StorageStatus.ADD:
-                logging.info(f"Added doc {doc.doc_identifier}")
-                DatabaseApiClient.add_doc(self.id, doc)
-            elif doc.storage_status == StorageStatus.DELETE:
-                logging.info(f"Removed doc {doc.id}")
-                DatabaseApiClient.remove_doc(doc.id)
+        batch_size = 500
+        addition_docs = [doc for doc in self.docs if doc.storage_status == StorageStatus.ADD]
+        removal_docs = [doc.id for doc in self.docs if doc.storage_status == StorageStatus.DELETE]
+        # Adding docs in batches
+        while addition_docs:
+            batch = addition_docs[:batch_size]
+            addition_docs = addition_docs[batch_size:]
+            logging.info(f"Added docs: {[doc.doc_identifier for doc in batch]}")
+            DatabaseApiClient.add_docs(self.id, batch)
+
+        # Removing docs in batches
+        while removal_docs:
+            batch = removal_docs[:batch_size]
+            removal_docs = removal_docs[batch_size:]
+            logging.info(f"Removed docs: {batch}")
+            DatabaseApiClient.remove_docs(batch)
+
         self.docs = []
