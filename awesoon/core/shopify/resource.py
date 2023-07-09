@@ -27,7 +27,8 @@ class Policy(Resource):
             Doc(
                 document=text,
                 hash=self.get_hash(),
-                doc_identifier=self.identifier()
+                doc_identifier=self.identifier(),
+                doc_type=DocType.POLICY.value
             )
             for text in processed_text
         ]
@@ -69,7 +70,8 @@ class Category(Resource):
             Doc(
                 document=text,
                 hash=self.get_hash(),
-                doc_identifier=self.identifier()
+                doc_identifier=self.identifier(),
+                doc_type=DocType.CATEGORY.value
             )
         ]
         return self

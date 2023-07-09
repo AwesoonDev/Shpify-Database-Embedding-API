@@ -10,7 +10,7 @@ class DatabaseApiClient(DatabaseClient):
 
     @classmethod
     def add_docs(cls, scan_id, docs: List[Doc]):
-        docs = [doc for doc in docs.to_dict()]
+        docs = [doc.to_dict() for doc in docs]
         return cls._make_request(requests.post, f"scans/{scan_id}/docs", json=docs)
 
     @classmethod
@@ -20,4 +20,4 @@ class DatabaseApiClient(DatabaseClient):
 
     @classmethod
     def remove_docs(self, doc_ids: List[str]):
-        return self._make_request(requests.delete, f"docs", params={"id": doc_ids})
+        return self._make_request(requests.delete, "docs", params={"id": doc_ids})

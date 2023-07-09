@@ -4,6 +4,7 @@ from typing import List
 from langchain.text_splitter import TokenTextSplitter
 
 from awesoon.core.models.doc import Doc
+from awesoon.core.models.doc_type_enums import DocType
 from awesoon.core.models.resource import ResourceInterface
 from awesoon.core.shopify.util import strip_tags
 
@@ -79,7 +80,8 @@ class ProductParser:
         result.append(
             Doc(
                 document=get_product_details_string(product, product_url),
-                doc_identifier=self.resource.identifier()
+                doc_identifier=self.resource.identifier(),
+                doc_type=DocType.PRODUCT.value
             )
         )
         return result
@@ -93,7 +95,8 @@ class ProductParser:
             result.append(
                 Doc(
                     document=document_text,
-                    doc_identifier=self.resource.identifier()
+                    doc_identifier=self.resource.identifier(),
+                    doc_type=DocType.PRODUCT.value
                 )
             )
         return result
@@ -107,7 +110,8 @@ class ProductParser:
             result.append(
                 Doc(
                     document=get_product_body_string(product, body),
-                    doc_identifier=self.resource.identifier()
+                    doc_identifier=self.resource.identifier(),
+                    doc_type=DocType.PRODUCT.value
                 )
             )
         return result
