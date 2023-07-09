@@ -9,9 +9,9 @@ from awesoon.core.models.doc import Doc
 class DatabaseApiClient(DatabaseClient):
 
     @classmethod
-    def add_doc(cls, scan_id, doc: Doc):
-        doc_data = doc.to_dict()
-        return cls._make_request(requests.post, f"scans/{scan_id}/docs", json=doc_data)
+    def add_docs(cls, scan_id, docs: List[Doc]):
+        docs = [doc for doc in docs.to_dict()]
+        return cls._make_request(requests.post, f"scans/{scan_id}/docs", json=docs)
 
     @classmethod
     def update_doc(self, doc: Doc):
@@ -19,5 +19,5 @@ class DatabaseApiClient(DatabaseClient):
         return self._make_request(requests.put, f"docs/{doc.id}", json=doc_data)
 
     @classmethod
-    def remove_doc(self, doc_id):
-        return self._make_request(requests.delete, f"docs/{doc_id}")
+    def remove_docs(self, doc_ids: List[str]):
+        return self._make_request(requests.delete, f"docs", params={"id": doc_ids})
