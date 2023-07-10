@@ -28,6 +28,10 @@ def get_shop_orders(shop):
     return query_platforms["shopify"]["querier"].get_shop_orders(shop.shop_url, shop.access_token)
 
 
+def get_shop_timezone(shop):
+    return query_platforms["shopify"]["querier"].get_shop_timezone(shop.shop_url, shop.access_token)
+
+
 def get_shop_resources(shop_id: int, app_name: str) -> list[Resource]:
     shop: Shop = DatabaseShopClient.get_shop_installation(shop_id, app_name)
     shop_resources: List[Resource] = []

@@ -8,6 +8,7 @@ from awesoon.core.shop import (
     get_shop_orders,
     get_shop_policies,
     get_shop_products,
+    get_shop_timezone,
 )
 
 ns = Namespace(
@@ -81,3 +82,14 @@ class ShopOrders(Resource):
             "orders": [order.raw() for order in orders]
         }
         return result
+
+
+@ns.route("/<id>/timezone")
+class ShopGetTimezone(Resource):
+    @ns.expect(shopify_parser)
+    def get(self, id):
+        args = shopify_parser.parse_args()
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
+        timezone = get_shop_timezone(shop)
+        return timezone
+    

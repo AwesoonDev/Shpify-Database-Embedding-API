@@ -109,3 +109,16 @@ class ShopifyQuery(Query):
                     break
                 orders = orders.next_page()
         return _serialize_docs(data, Resource)
+
+    @classmethod
+    def get_shop_timezone(cls, shop_url, token) -> str:
+        with shopify.Session.temp(shop_url, API_VERSION, token):
+            query = """
+            {
+                shop {
+                    ianaTimezone
+                }
+            }"""
+
+        shop_object = _make_gql_request(shop_url, token, query)
+        return shop_object
