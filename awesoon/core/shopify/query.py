@@ -67,12 +67,9 @@ class ShopifyQuery(Query):
             if product.get("status") == "active" and product.get("published_at"):
                 product = {field: product.get(field) for field in SHP_FIELDS}
                 product["body_html"] = strip_tags(product.get("body_html"))
-                product["url"] = f"""{shop_url}/products/{product.pop("handle", None)}"""
                 variants = product.get("variants")
                 if variants:
                     product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
-                    for variant in product["variants"]:
-                        variant["url"] = f"""{product.get("url")}?variant={variant.pop("id")}"""
                 products.append(product)
             else:
                 pass
