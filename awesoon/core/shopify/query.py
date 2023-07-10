@@ -121,4 +121,5 @@ class ShopifyQuery(Query):
             }"""
 
         shop_object = _make_gql_request(shop_url, token, query)
-        return shop_object
+        timezone = shop_object.get("data").get("shop").get("ianaTimezone")
+        return timezone
