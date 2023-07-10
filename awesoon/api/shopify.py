@@ -81,3 +81,4 @@ class ShopOrders(Resource):
             "orders": [order.raw() for order in orders]
         }
         return result
+

@@ -3,6 +3,8 @@ from flask_restx import Namespace, Resource, marshal
 from awesoon.celery.tasks import manual_scan_request
 from awesoon.core.exceptions import ShopInstallationNotFoundError
 from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
+from awesoon.adapter.db.shop_client import DatabaseShopClient
+from awesoon.core.shop import get_shop_timezone
 from awesoon.core.scan import Scanner
 
 ns = Namespace(
@@ -37,3 +39,14 @@ class ShopComputeNonCelery(Resource):
             return scan.id, 200
         except ShopInstallationNotFoundError:
             ns.abort(400, "Shop Installation Not Found")
+
+
+@ns.route("/<id>/timezone")
+class ShopGetTimezone(Resource):
+    @ns.expect(compute_parser)
+    def get(self, id):
+        args = compute_parser.parse_args()
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
+        timezone = get_shop_timezone(shop)
+        return timezone
+    
