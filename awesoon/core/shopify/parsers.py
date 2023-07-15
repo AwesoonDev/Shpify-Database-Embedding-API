@@ -22,7 +22,8 @@ Product Title: {product_title}.
 Product Type: {product_type}.
 Product URL: {product_url}.
 Brand: {brand}.
-Search tags: {search_tags}
+Search tags: {search_tags},
+Price range: {price_range}
 """
 
 PRODUCT_BODY = """
@@ -42,13 +43,14 @@ def get_variant_doc_text_string(variant, product_url, product_tile):
     )
 
 
-def get_product_details_string(product, product_url):
+def get_product_details_string(product, product_url, price_range):
     return PRODUCT_DETAIL.format(
         product_title=product.get("title"),
         product_type=product.get("product_type"),
         product_url=product_url,
         brand=product.get("vendor"),
         search_tags=product.get("tags"),
+        price_range=price_range,
     )
 
 
@@ -76,10 +78,13 @@ class ProductParser:
 
     def get_product_details(self, product) -> List[Doc]:
         product_url = f"""{self.products_url}{product.get("handle")}"""
+        variants = product.get("variants")
+        prices = [float(variant.get("variant_price")) for variant in variants]
+        price_range = f"{min(prices)}-{max(prices)}"
         result = []
         result.append(
             Doc(
-                document=get_product_details_string(product, product_url),
+                document=get_product_details_string(product, product_url, price_range),
                 doc_identifier=self.resource.identifier(),
                 doc_type=DocType.PRODUCT.value
             )
