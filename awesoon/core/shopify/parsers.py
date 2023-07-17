@@ -79,7 +79,7 @@ class ProductParser:
     def get_product_details(self, product) -> List[Doc]:
         product_url = f"""{self.products_url}{product.get("handle")}"""
         variants = product.get("variants")
-        prices = [float(variant.get("variant_price")) for variant in variants]
+        prices = [float(variant.get("price")) for variant in variants]
         price_range = f"{min(prices)}-{max(prices)}"
         result = []
         result.append(
