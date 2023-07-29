@@ -20,10 +20,16 @@ run: ## Start the service locally
 	flask run --host=0.0.0.0 --no-debugger --no-reload -p $(PORT)
 
 build-docker: ## Build the docker image
-	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml build
+	docker build $(DOCKER_PLATFORM) -t $(PROJECT_NAME) .
 
-run-docker: ## Run the docker image
-	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml up
+build-docker-celery: ## Build the docker image
+	docker build $(DOCKER_PLATFORM) -t $(PROJECT_NAME)-celery -f build/celery/Dockerfile .
+
+tag-docker: ## Tag the docker image
+	docker tag $(PROJECT_NAME) northamerica-northeast1-docker.pkg.dev/iron-burner-389219/awesoon/$(PROJECT_NAME):latest
+
+push-docker: ## push the image to registry
+	docker push northamerica-northeast1-docker.pkg.dev/iron-burner-389219/awesoon/$(PROJECT_NAME):latest
 
 stop-docker: # Stop and remove containers and networks
 	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml down

@@ -17,8 +17,8 @@ SHELL ["mamba", "run", "-n", "shop-api", "/bin/bash", "-c"]
 
 FROM requirements as container
 COPY . .
-RUN chmod +x entrypoint.sh
+RUN chmod +x entrypoint_celery.sh
 
 EXPOSE $APP_EXPOSED_PORT
 ENV FLASK_DEBUG 1
-CMD ["./entrypoint.sh"]
+CMD ["./entrypoint_celery.sh"]
