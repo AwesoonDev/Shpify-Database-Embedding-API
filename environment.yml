@@ -16,7 +16,6 @@ dependencies:
         - werkzeug=2.1.2
         - langchain
         - openai
-        - tiktoken
         - python-dotenv
         - pip:
                 - celery
@@ -25,4 +24,5 @@ dependencies:
                 - tox-conda
                 - ShopifyAPI
                 - redis
+                - tiktoken
                 - git+https://github.com/korbit-ai/python-config-probe.git
