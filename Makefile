@@ -5,6 +5,12 @@ DOCKER_REGISTRY_REPO = northamerica-northeast1-docker.pkg.dev/iron-burner-389219
 TOPDIR = $(shell git rev-parse --show-toplevel)
 CONDA_SH := $(shell find ~/*conda*/etc -name conda.sh | tail -1)
 ACTIVATE := source $(CONDA_SH) && conda activate $(PROJECT_NAME)
+ifeq ($(shell uname -p), arm)
+DOCKER_PLATFORM = --platform linux/amd64
+else
+DOCKER_PLATFORM =
+endif
+
 
 default: help
 
