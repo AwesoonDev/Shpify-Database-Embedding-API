@@ -1,6 +1,6 @@
 # Project configuration
 PROJECT_NAME = shop-api
-
+DOCKER_REGISTRY_REPO = northamerica-northeast1-docker.pkg.dev/iron-burner-389219/awesoon
 # General Parameters
 TOPDIR = $(shell git rev-parse --show-toplevel)
 CONDA_SH := $(shell find ~/*conda*/etc -name conda.sh | tail -1)
@@ -22,14 +22,20 @@ run: ## Start the service locally
 build-docker: ## Build the docker image
 	docker build $(DOCKER_PLATFORM) -t $(PROJECT_NAME) .
 
-build-docker-celery: ## Build the docker image
+build-docker-celery: ## Build the docker celery image
 	docker build $(DOCKER_PLATFORM) -t $(PROJECT_NAME)-celery -f build/celery/Dockerfile .
 
 tag-docker: ## Tag the docker image
-	docker tag $(PROJECT_NAME) northamerica-northeast1-docker.pkg.dev/iron-burner-389219/awesoon/$(PROJECT_NAME):latest
+	docker tag $(PROJECT_NAME) $(DOCKER_REGISTRY_REPO)/$(PROJECT_NAME):latest
+
+tag-docker-celery: ## Tag the docker celery image
+	docker tag $(PROJECT_NAME)-celery $(DOCKER_REGISTRY_REPO)/$(PROJECT_NAME)-celery:latest
 
 push-docker: ## push the image to registry
-	docker push northamerica-northeast1-docker.pkg.dev/iron-burner-389219/awesoon/$(PROJECT_NAME):latest
+	docker push $(DOCKER_REGISTRY_REPO)/$(PROJECT_NAME):latest
+
+push-docker-celery: ## push the image to registry
+	docker push $(DOCKER_REGISTRY_REPO)/$(PROJECT_NAME)-celery:latest
 
 stop-docker: # Stop and remove containers and networks
 	@docker-compose -f deploy/docker_compose/docker-compose.dev.yml down
