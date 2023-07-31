@@ -3,4 +3,3 @@ database:
   api_version: "v1"
 celery_broker:
   port: "6379"
-  host: "redis://localhost"
