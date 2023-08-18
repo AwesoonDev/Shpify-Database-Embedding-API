@@ -19,6 +19,21 @@ VARIANT_FIELDS = [
 ]
 
 
+def process_products_data(product_data):
+    products = []
+    for product in product_data:
+        if product.get("status") == "active" and product.get("published_at"):
+            product = {field: product.get(field) for field in SHP_FIELDS}
+            product["body_html"] = strip_tags(product.get("body_html"))
+            variants = product.get("variants")
+            if variants:
+                product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
+            products.append(product)
+        else:
+            pass
+    return products
+
+
 def _make_gql_request(shop_url, token, query):
     data = None
     with shopify.Session.temp(shop_url, API_VERSION, token):
@@ -49,7 +64,7 @@ class ShopifyQuery(Query):
         policies_decoded = decode_html_policies(policies_trimmed)
         for policy in policies_decoded:
             policy["id"] = get_id_from_gid(policy.get("id"))
-        return _serialize_docs(policies_decoded, Policy)
+        yield _serialize_docs(policies_decoded, Policy)
 
     @classmethod
     def get_shop_products(cls, shop_url, token) -> List[Product]:
@@ -58,22 +73,12 @@ class ShopifyQuery(Query):
             product_pages = shopify.Product.find()
             while True:
                 curr_page_data = [product_page.to_dict() for product_page in product_pages]
+                products = process_products_data(curr_page_data)
+                yield _serialize_docs(products, Product)
                 data.extend(curr_page_data)
                 if not product_pages.has_next_page():
                     break
                 product_pages = product_pages.next_page()
-        products = []
-        for product in data:
-            if product.get("status") == "active" and product.get("published_at"):
-                product = {field: product.get(field) for field in SHP_FIELDS}
-                product["body_html"] = strip_tags(product.get("body_html"))
-                variants = product.get("variants")
-                if variants:
-                    product["variants"] = [{key: variant.get(key) for key in VARIANT_FIELDS} for variant in variants]
-                products.append(product)
-            else:
-                pass
-        return _serialize_docs(products, Product)
 
     @classmethod
     def get_shop_categories(cls, shop_url, token) -> List[Category]:
@@ -95,7 +100,7 @@ class ShopifyQuery(Query):
         categories = [node.pop("productTaxonomyNode") for node in trimmed_categories]
         for category in categories:
             category["id"] = get_id_from_gid(category.get("id"))
-        return _serialize_docs(categories, Category)
+        yield _serialize_docs(categories, Category)
 
     @classmethod
     def get_shop_orders(cls, shop_url, token) -> List[Resource]:
@@ -108,4 +113,4 @@ class ShopifyQuery(Query):
                 if not orders.has_next_page():
                     break
                 orders = orders.next_page()
-        return _serialize_docs(data, Resource)
+        yield _serialize_docs(data, Resource)

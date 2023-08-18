@@ -16,7 +16,7 @@ class DatabaseShopClient(DatabaseClient):
 
     @classmethod
     def get_shop_docs(cls, shop_id) -> List[Doc]:
-        docs = cls._make_request(requests.get, f"shops/{shop_id}/docs")
+        docs = cls._make_request(requests.get, f"shops/{shop_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
         return [Doc.from_dict(doc) for doc in docs]
 
     @classmethod

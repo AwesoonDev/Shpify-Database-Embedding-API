@@ -32,7 +32,12 @@ def get_shop_resources(shop_id: int, app_name: str) -> list[Resource]:
     shop: Shop = DatabaseShopClient.get_shop_installation(shop_id, app_name)
     shop_resources: List[Resource] = []
     for query in query_platforms[shop.platform]["queries"]:
-        shop_resources.extend(query(shop.shop_url, shop.access_token))
-    for resource in shop_resources:
-        resource.set_shop(shop)
-    return shop_resources
+        queryExec = query(shop.shop_url, shop.access_token)
+        for resources in queryExec:
+            for resource in resources:
+                resource.set_shop(shop)
+            shop_resources.extend(resources)
+            if len(shop_resources) >= 900:
+                yield shop_resources
+                shop_resources = []
+    yield shop_resources

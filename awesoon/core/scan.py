@@ -28,11 +28,15 @@ class Scanner:
         DatabaseScanClient.update_scan_status(scan, ScanStatus.IN_PROGRESS)
         try:
             filter = ResourceFilter(scan.shop_id)
-            shop_resources: List[Resource] = get_shop_resources(scan.shop_id, scan.app_name)
-            resources = Resources(shop_resources)
-            resources.parse_all().apply_filter(
-                filter
-            ).embed_all().save_all(scan=scan)
+            shop_resources_generator = get_shop_resources(scan.shop_id, scan.app_name)
+            # import sys
+            # print(sys.getsizeof(shop_resources))
+            for shop_resources in shop_resources_generator:
+                resources = Resources(shop_resources)
+                resources.parse_all().apply_filter(
+                    filter
+                ).embed_all().save_all(scan=scan)
+                scan.commit()
             filter.removable_docs().delete(scan=scan)
             scan.commit()
             DatabaseScanClient.update_scan_status(scan, ScanStatus.COMPLETED)
