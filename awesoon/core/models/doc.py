@@ -7,7 +7,7 @@ from awesoon.core.models.doc_type_enums import StorageStatus
 
 @dataclass
 class Doc(BaseDataClass):
-    document: str
+    document: str = None
     doc_type: str = None
     doc_identifier: str = None
     hash: str = None

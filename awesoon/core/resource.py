@@ -135,6 +135,7 @@ class Resources(ResourcesInterface):
         return self
 
     def embed_all(self):
+
         if self.resources:
             Embedder.embed_resources(self.resources)
         return self

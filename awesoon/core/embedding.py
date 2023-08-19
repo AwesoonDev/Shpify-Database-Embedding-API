@@ -36,7 +36,7 @@ class Embedder(ABC):
         return resource
 
     @classmethod
-    def embed_resources(cls, resources: List[ResourceInterface]) -> List[ResourceInterface]:
+    def embed_resources(cls, resources: List[ResourceInterface], batch_size=200) -> List[ResourceInterface]:
         openai = OpenAIEmbeddings()
         docs: List[Doc] = [doc for resource in resources for doc in resource.docs()]
         embeddings = openai.embed_documents([doc.document for doc in docs])
