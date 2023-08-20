@@ -22,6 +22,19 @@
             ],
             "jinja": true,
             "justMyCode": true
-        }
+        },
+        {
+            "name": "Python: Celery",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "console": "integratedTerminal",
+            "args": [
+                "-A", "awesoon.celery.tasks",
+                "worker",
+                "--loglevel=info",
+                "--pool=solo"
+            ]
+        }        
     ]
 }
