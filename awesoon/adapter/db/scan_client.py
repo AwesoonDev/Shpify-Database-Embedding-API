@@ -17,8 +17,15 @@ class DatabaseScanClient(DatabaseClient):
 
     @classmethod
     def get_scan_docs(cls, scan_id) -> List[Doc]:
-        docs = cls._make_request(requests.get, f"scans/{scan_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
-        return [Doc.from_dict(doc) for doc in docs]
+        result = []
+        page = 0
+        while True:
+            docs = cls._make_request(requests.get, f"scans/{scan_id}/docs", params={"offset": page}, headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
+            if not docs:
+                break
+            result.extend([Doc.from_dict(doc) for doc in docs])
+            page += 1
+        return result
 
     @classmethod
     def get_scan(self, scan_id) -> Scan:

@@ -16,8 +16,15 @@ class DatabaseShopClient(DatabaseClient):
 
     @classmethod
     def get_shop_docs(cls, shop_id) -> List[Doc]:
-        docs = cls._make_request(requests.get, f"shops/{shop_id}/docs", headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
-        return [Doc.from_dict(doc) for doc in docs]
+        result = []
+        page = 0
+        while True:
+            docs = cls._make_request(requests.get, f"shops/{shop_id}/docs", params={"offset": page}, headers={'X-fields': '{id, hash, doc_type, doc_identifier}'})
+            if not docs:
+                break
+            result.extend([Doc.from_dict(doc) for doc in docs])
+            page += 1
+        return result
 
     @classmethod
     def get_shop_installation(cls, shop_id, app_name) -> Shop:

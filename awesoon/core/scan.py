@@ -1,12 +1,10 @@
 
 import logging
-from typing import List
-
 from awesoon.adapter.db.scan_client import DatabaseScanClient
 from awesoon.core.exceptions import ScanError
 from awesoon.core.filter import ResourceFilter
 from awesoon.core.models.scan import Scan, ScanStatus, TriggerType
-from awesoon.core.resource import Resource, Resources
+from awesoon.core.resource import Resources
 from awesoon.core.shop import get_shop_resources
 
 
