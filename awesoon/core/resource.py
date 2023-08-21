@@ -2,9 +2,7 @@
 
 import hashlib
 import json
-from abc import ABC
 from typing import List, Optional
-
 from awesoon.core.embedding import Embedder
 from awesoon.core.exceptions import ResourceDocsHashError
 from awesoon.core.models.doc import Doc
