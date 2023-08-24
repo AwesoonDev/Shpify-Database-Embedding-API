@@ -5,7 +5,7 @@ import shopify
 
 from awesoon.core.query import Query
 from awesoon.core.resource import Resource
-from awesoon.core.shopify.resource import Category, Page, Policy, Product
+from awesoon.core.shopify.resource import Article, Category, Page, Policy, Product
 from awesoon.core.shopify.util import decode_html_policies, get_id_from_gid, strip_tags
 
 API_VERSION = "2023-01"
@@ -138,3 +138,17 @@ class ShopifyQuery(Query):
                     break
                 page_pages = page_pages.next_page()
         yield _serialize_docs(data, Page)
+
+    @classmethod
+    def get_shop_articles(cls, shop_url, token) -> List[Page]:
+        data = []
+        with shopify.Session.temp(shop_url, API_VERSION, token):
+            blog_pages = shopify.Blog.find()
+            while True:
+                for blog in blog_pages:
+                    articles = blog.articles()
+                    data.extend([article.to_dict() for article in articles])
+                if not blog_pages.has_next_page():
+                    break
+                blog_pages = blog_pages.next_page()
+        yield _serialize_docs(data, Article)

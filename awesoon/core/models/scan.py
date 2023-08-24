@@ -47,6 +47,7 @@ class Scan(BaseDataClass):
         batch_size = 500
         addition_docs = [doc for doc in self.docs if doc.storage_status == StorageStatus.ADD]
         removal_docs = [doc.id for doc in self.docs if doc.storage_status == StorageStatus.DELETE]
+        logging.info(f"committing scan for shop {self.shop_id}")
         # Adding docs in batches
         while addition_docs:
             batch = addition_docs[:batch_size]

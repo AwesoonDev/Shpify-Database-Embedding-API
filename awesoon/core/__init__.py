@@ -8,6 +8,7 @@ query_platforms = {
             ShopifyQuery.get_shop_policies,
             ShopifyQuery.get_shop_products,
             ShopifyQuery.get_shop_pages,
+            ShopifyQuery.get_shop_articles,
         ]
     }
 }
