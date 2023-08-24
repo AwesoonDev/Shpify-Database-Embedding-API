@@ -5,7 +5,7 @@ import shopify
 
 from awesoon.core.query import Query
 from awesoon.core.resource import Resource
-from awesoon.core.shopify.resource import Category, Policy, Product
+from awesoon.core.shopify.resource import Category, Page, Policy, Product
 from awesoon.core.shopify.util import decode_html_policies, get_id_from_gid, strip_tags
 
 API_VERSION = "2023-01"
@@ -32,6 +32,17 @@ def process_products_data(product_data):
         else:
             pass
     return products
+
+
+def process_pages_data(page_data):
+    pages = []
+    for page in page_data:
+        if page.get("published_at"):
+            page["body_html"] = strip_tags(page.get("body_html"))
+            pages.append(page)
+        else:
+            pass
+    return pages
 
 
 def _make_gql_request(shop_url, token, query):
@@ -114,3 +125,16 @@ class ShopifyQuery(Query):
                     break
                 orders = orders.next_page()
         yield _serialize_docs(data, Resource)
+
+    @classmethod
+    def get_shop_pages(cls, shop_url, token) -> List[Page]:
+        data = []
+        with shopify.Session.temp(shop_url, API_VERSION, token):
+            page_pages = shopify.Page.find()
+            while True:
+                pages_data = [page.to_dict() for page in page_pages]
+                data.extend(process_pages_data(pages_data))
+                if not page_pages.has_next_page():
+                    break
+                page_pages = page_pages.next_page()
+        yield _serialize_docs(data, Page)

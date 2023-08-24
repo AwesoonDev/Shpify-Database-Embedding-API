@@ -6,6 +6,7 @@ from awesoon.adapter.db.shop_client import DatabaseShopClient
 from awesoon.core.shop import (
     get_shop_categories,
     get_shop_orders,
+    get_shop_pages,
     get_shop_policies,
     get_shop_products,
 )
@@ -26,15 +27,17 @@ def paginate_resources(resources, args):
     return resources[offset:limit]
 
 
-
 @ns.route("/<id>/policies")
 class ShopGetPolicies(Resource):
     @ns.expect(shopify_parser)
     def get(self, id):
         args = shopify_parser.parse_args()
         shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
-        policies = get_shop_policies(shop)
-        policies = paginate_resources(policies, args)
+        policies_generator = get_shop_policies(shop)
+        policies_data = []
+        for policies in policies_generator:
+            policies_data.extend(policies)
+        policies = paginate_resources(policies_data, args)
         result = {
             "policies": [policy.raw() for policy in policies]
         }
@@ -47,8 +50,11 @@ class ShopGetProducts(Resource):
     def get(self, id):
         args = shopify_parser.parse_args()
         shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
-        products = get_shop_products(shop)
-        products = paginate_resources(products, args)
+        products_generator = get_shop_products(shop)
+        products_data = []
+        for products in products_generator:
+            products_data.extend(products)
+        products = paginate_resources(products_data, args)
         result = {
             "products": [product.raw() for product in products]
         }
@@ -61,10 +67,30 @@ class ShopGetCategories(Resource):
     def get(self, id):
         args = shopify_parser.parse_args()
         shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
-        categories = get_shop_categories(shop)
-        categories = paginate_resources(categories, args)
+        categories_generator = get_shop_categories(shop)
+        categories_data = []
+        for categories in categories_generator:
+            categories_data.extend(categories)
+        categories = paginate_resources(categories_data, args)
         result = {
             "categories": [category.raw() for category in categories]
+        }
+        return result
+
+
+@ns.route("/<id>/pages")
+class ShopPages(Resource):
+    @ns.expect(shopify_parser)
+    def get(self, id):
+        args = shopify_parser.parse_args()
+        shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
+        pages_generator = get_shop_pages(shop)
+        pages_data = []
+        for pages in pages_generator:
+            pages_data.extend(pages)
+        pages = paginate_resources(pages_data, args)
+        result = {
+            "pages": [page.raw() for page in pages]
         }
         return result
 

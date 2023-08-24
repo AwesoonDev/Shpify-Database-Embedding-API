@@ -75,3 +75,29 @@ class Category(Resource):
             )
         ]
         return self
+
+
+class Page(Resource):
+
+    def identifier(self):
+        return str(self.raw().get("id"))
+
+    def parse(self):
+        text_splitter = TokenTextSplitter(chunk_size=200, chunk_overlap=40)
+        split_text = text_splitter.split_text(self.raw().get("body_html"))
+        prepend = f"""Partial Webpage on the online store: """
+        processed_text = [
+            f"""{prepend}{text}""" for text in split_text
+        ]
+        self._docs = [
+            Doc(
+                document=text,
+                hash=self.get_hash(),
+                doc_identifier=self.identifier(),
+                doc_type=DocType.PAGE.value
+            )
+            for text in processed_text
+        ]
+        return self
+
+
