@@ -6,7 +6,8 @@ query_platforms = {
         "queries": [
             ShopifyQuery.get_shop_categories,
             ShopifyQuery.get_shop_policies,
-            ShopifyQuery.get_shop_products
+            ShopifyQuery.get_shop_products,
+            ShopifyQuery.get_shop_pages,
         ]
     }
 }
