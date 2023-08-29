@@ -135,7 +135,12 @@ class Order(Resource):
         order_data = copy(self.raw())
         order_data.pop("id")
         prepend = """Here is an order information -> """
+        fulfillment_status = None
+        if self.raw().get("fulfillment_status"):
+            fulfillment_status = """fulfillment_status": {self.raw().get("fulfillment_status")}"""
         text = f"""{prepend} Order Number: {self.raw().get("order_number")}, Order Status URL: {self.raw().get("order_status_url")}"""
+        if fulfillment_status:
+            text += fulfillment_status
         self._docs = [
             Doc(
                 document=text,
