@@ -101,8 +101,11 @@ class ShopOrders(Resource):
     def get(self, id):
         args = shopify_parser.parse_args()
         shop = DatabaseShopClient.get_shop_installation(id, app_name=args["app_name"])
-        orders = get_shop_orders(shop)
-        orders = paginate_resources(orders, args)
+        orders_generator = get_shop_orders(shop)
+        order_data = []
+        for order in orders_generator:
+            order_data.extend(order)
+        orders = paginate_resources(order_data, args)
         result = {
             "orders": [order.raw() for order in orders]
         }

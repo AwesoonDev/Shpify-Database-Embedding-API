@@ -5,7 +5,7 @@ import shopify
 
 from awesoon.core.query import Query
 from awesoon.core.resource import Resource
-from awesoon.core.shopify.resource import Article, Category, Page, Policy, Product
+from awesoon.core.shopify.resource import Article, Category, Order, Page, Policy, Product
 from awesoon.core.shopify.util import decode_html_policies, get_id_from_gid, strip_tags
 
 API_VERSION = "2023-01"
@@ -17,6 +17,8 @@ SHP_FIELDS = [
 VARIANT_FIELDS = [
     "id", "title", "grams", "inventory_quantity", "price",
 ]
+
+ORDER_FIELDS = ["order_status_url", "order_number", "id", "fulfillment_status"]
 
 
 def process_products_data(product_data):
@@ -114,17 +116,18 @@ class ShopifyQuery(Query):
         yield _serialize_docs(categories, Category)
 
     @classmethod
-    def get_shop_orders(cls, shop_url, token) -> List[Resource]:
+    def get_shop_orders(cls, shop_url, token) -> List[Order]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
             orders = shopify.Order.find()
             while True:
                 orders_data = [order.to_dict() for order in orders]
+                orders_data = [{field: order.get(field) for field in ORDER_FIELDS} for order in orders_data]
                 data.extend(orders_data)
                 if not orders.has_next_page():
                     break
                 orders = orders.next_page()
-        yield _serialize_docs(data, Resource)
+        yield _serialize_docs(data, Order)
 
     @classmethod
     def get_shop_pages(cls, shop_url, token) -> List[Page]:

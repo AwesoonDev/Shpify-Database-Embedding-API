@@ -9,6 +9,7 @@ query_platforms = {
             ShopifyQuery.get_shop_products,
             ShopifyQuery.get_shop_pages,
             ShopifyQuery.get_shop_articles,
+            ShopifyQuery.get_shop_orders,
         ]
     }
 }

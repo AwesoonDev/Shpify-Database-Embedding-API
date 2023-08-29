@@ -8,6 +8,7 @@ class DocType(enum.Enum):
     PAGE = "PAGE"
     ARTICLE = "ARTICLE"
     BLOG = "BLOG"
+    ORDER = "ORDER"
 
 
 class StorageStatus(enum.Enum):

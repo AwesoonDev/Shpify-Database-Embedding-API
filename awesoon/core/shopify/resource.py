@@ -1,5 +1,6 @@
 
 
+from copy import copy
 import logging
 from typing import List, Optional
 
@@ -121,5 +122,34 @@ class Article(Resource):
                 doc_type=DocType.ARTICLE.value
             )
             for text in processed_text
+        ]
+        return self
+
+
+class Order(Resource):
+
+    def identifier(self):
+        return str(self.raw().get("id"))
+
+    def parse(self):
+        order_data = copy(self.raw())
+        order_data.pop("id")
+        order_status_url = self.raw().get("order_status_url")
+        if order_status_url.startswith("https://"):
+            order_status_url = order_status_url[len("https://"):]
+        prepend = """Here is an order information -> """
+        fulfillment_status = self.raw().get("fulfillment_status")
+        if fulfillment_status:
+            fulfillment_status = f"""fulfillment_status": {fulfillment_status}"""
+        text = f"""{prepend} Order Number: {self.raw().get("order_number")}, Order Status URL: {order_status_url} """
+        if fulfillment_status:
+            text += fulfillment_status
+        self._docs = [
+            Doc(
+                document=text,
+                hash=self.get_hash(),
+                doc_identifier=self.identifier(),
+                doc_type=DocType.ORDER.value
+            )
         ]
         return self
