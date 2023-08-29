@@ -18,6 +18,8 @@ VARIANT_FIELDS = [
     "id", "title", "grams", "inventory_quantity", "price",
 ]
 
+ORDER_FIELDS = ["order_status_url", "order_number", "id"]
+
 
 def process_products_data(product_data):
     products = []
@@ -120,6 +122,7 @@ class ShopifyQuery(Query):
             orders = shopify.Order.find()
             while True:
                 orders_data = [order.to_dict() for order in orders]
+                orders_data = [{field: order.get(field) for field in ORDER_FIELDS} for order in orders_data]
                 data.extend(orders_data)
                 if not orders.has_next_page():
                     break
