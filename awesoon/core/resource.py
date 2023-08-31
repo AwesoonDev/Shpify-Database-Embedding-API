@@ -12,6 +12,7 @@ from awesoon.core.models.resource import ResourceInterface, ResourcesInterface
 from awesoon.core.models.scan import Scan
 from awesoon.core.models.shop import Shop
 
+resource_hash_version = "1.0.0"
 
 class Resource(ResourceInterface):
     def __init__(
@@ -93,7 +94,10 @@ class Resource(ResourceInterface):
             to_hash = json.dumps(self._raw)
             hasher = hashlib.sha256()
             hasher.update(to_hash.encode())
-            self._hash = hasher.hexdigest()
+            hash = hasher.hexdigest()
+            versioned_hash = f"{resource_hash_version}-{hash}"
+            self._hash = versioned_hash
+            
         else:
             self._hash = None
 
