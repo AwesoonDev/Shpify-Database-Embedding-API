@@ -91,10 +91,13 @@ class Resource(ResourceInterface):
 
     def set_hash(self):
         if self.raw():
-            to_hash = f"{resource_hash_version}{json.dumps(self._raw)}"
+            to_hash = json.dumps(self._raw)
             hasher = hashlib.sha256()
             hasher.update(to_hash.encode())
-            self._hash = hasher.hexdigest()
+            hash = hasher.hexdigest()
+            versioned_hash = f"{resource_hash_version}{hash}"
+            self._hash = versioned_hash
+            
         else:
             self._hash = None
 
