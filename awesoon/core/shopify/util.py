@@ -32,7 +32,7 @@ def strip_tags(html):
     s = MLStripper()
     s.feed(html)
     s.close()
-    return re.sub(r'[\n\r\s]+', '', s.get_data())
+    return re.sub(r'[\n\r\s]+', ' ', s.get_data())
 
 
 def get_id_from_gid(uri):
