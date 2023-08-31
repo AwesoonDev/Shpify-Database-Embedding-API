@@ -95,7 +95,7 @@ class Resource(ResourceInterface):
             hasher = hashlib.sha256()
             hasher.update(to_hash.encode())
             hash = hasher.hexdigest()
-            versioned_hash = f"{resource_hash_version}{hash}"
+            versioned_hash = f"{resource_hash_version}-{hash}"
             self._hash = versioned_hash
             
         else:
