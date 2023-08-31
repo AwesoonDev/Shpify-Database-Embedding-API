@@ -22,6 +22,12 @@ class MLStripper(HTMLParser):
     def handle_data(self, data):
         self.text.write(html.unescape(data))
 
+    def handle_starttag(self, tag, attrs):
+        self.text.write(' ')
+        
+    def handle_endtag(self, tag):
+        self.text.write(' ')
+
     def get_data(self):
         return self.text.getvalue()
 

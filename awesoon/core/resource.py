@@ -12,7 +12,7 @@ from awesoon.core.models.resource import ResourceInterface, ResourcesInterface
 from awesoon.core.models.scan import Scan
 from awesoon.core.models.shop import Shop
 
-resource_hash_version = "1.0.0"
+resource_hash_version = "1.0.1"
 
 class Resource(ResourceInterface):
     def __init__(
