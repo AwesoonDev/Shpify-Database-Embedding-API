@@ -137,6 +137,7 @@ class Order(Resource):
         order_status_url = self.raw().get("order_status_url")
         if order_status_url.startswith("https://"):
             order_status_url = order_status_url[len("https://"):]
+            order_status_url = order_status_url.split('authenticate', 1)[0]
         prepend = """Here is an order information -> """
         fulfillment_status = self.raw().get("fulfillment_status")
         if fulfillment_status:
