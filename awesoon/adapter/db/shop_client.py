@@ -32,8 +32,11 @@ class DatabaseShopClient(DatabaseClient):
         return result
 
     @classmethod
-    def get_shop_installation(cls, shop_id, app_name) -> Shop:
-        installations = cls._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"app_name": app_name})
+    def get_shop_installation(cls, shop_id, app_name=None) -> Shop:
+        if app_name:
+            installations = cls._make_request(requests.get, f"shops/{shop_id}/shopify-installations", params={"app_name": app_name})
+        else:
+            installations = cls._make_request(requests.get, f"shops/{shop_id}/shopify-installations")
         if installations:
             installation = installations[0]
             return Shop.from_dict(installation)

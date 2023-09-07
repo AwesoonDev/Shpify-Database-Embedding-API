@@ -40,8 +40,8 @@ def cron_scan_request():
     shops = DatabaseShopClient.get_shops()
     for shop in shops:
         try:
-            shop = DatabaseShopClient.get_shop_installation(shop["shop_identifier"])
-            scan: Scan = Scanner.create_scan(shop.shop_id)
+            DatabaseShopClient.get_shop_installation(shop["shop_identifier"])
+            scan: Scan = Scanner.create_scan(shop["shop_identifier"])
             manual_scan_request.delay(scan.id)
         except ShopInstallationNotFoundError:
             pass
