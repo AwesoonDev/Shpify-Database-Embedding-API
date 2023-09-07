@@ -15,6 +15,11 @@ class DatabaseShopClient(DatabaseClient):
         return cls._make_request(requests.get, f"shops/{shop_id}")
 
     @classmethod
+    def get_shops(cls):
+        shops = cls._make_request(requests.get, "shops")
+        return shops
+
+    @classmethod
     def get_shop_docs(cls, shop_id) -> List[Doc]:
         result = []
         page = 0
@@ -34,3 +39,4 @@ class DatabaseShopClient(DatabaseClient):
             return Shop.from_dict(installation)
         else:
             raise ShopInstallationNotFoundError
+
