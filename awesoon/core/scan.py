@@ -27,8 +27,6 @@ class Scanner:
         try:
             filter = ResourceFilter(scan.shop_id)
             shop_resources_generator = get_shop_resources(scan.shop_id, scan.app_name)
-            # import sys
-            # print(sys.getsizeof(shop_resources))
             for shop_resources in shop_resources_generator:
                 resources = Resources(shop_resources)
                 resources.parse_all().apply_filter(

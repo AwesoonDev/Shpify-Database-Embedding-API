@@ -49,6 +49,9 @@ stop-docker: # Stop and remove containers and networks
 run-celery: # Run celery workers
 	./entrypoint_celery.sh $(NUM_WORKERS)
 
+run-celery-beat: # Run celery beat
+	celery -A awesoon.celery.tasks beat --loglevel=info
+
 test: ## Run tox
 	tox
 
