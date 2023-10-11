@@ -1,5 +1,8 @@
 import json
 from typing import List
+from datetime import datetime, timedelta
+import pdb
+
 
 import shopify
 
@@ -119,7 +122,8 @@ class ShopifyQuery(Query):
     def get_shop_orders(cls, shop_url, token) -> List[Order]:
         data = []
         with shopify.Session.temp(shop_url, API_VERSION, token):
-            orders = shopify.Order.find()
+            kwargs = {"created_at_min": (datetime.utcnow() - timedelta(days=59)).isoformat()}
+            orders = shopify.Order.find(kwargs=kwargs)
             while True:
                 orders_data = [order.to_dict() for order in orders]
                 orders_data = [{field: order.get(field) for field in ORDER_FIELDS} for order in orders_data]
